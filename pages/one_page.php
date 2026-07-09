@@ -170,11 +170,11 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
     data-cxc-raw="<?= (int)(($reporte['diagnostico']['total_registros_cxc_raw'] ?? 0)) ?>"
     data-cxc-filtered="<?= (int)(($reporte['diagnostico']['total_registros_cxc'] ?? 0)) ?>">
     <script>
-    // Mapa dinmico de modelo/atributo por cliente — viene del backend
-    var CLIENTE_MODELO_ATRIBUTOS = <?= json_encode($reporte['modelo_atributos'] ?? $inventario['modelo_atributos'] ?? []) ?>;
-    if (typeof window.CLIENTE_MODELO_ATRIBUTOS === 'undefined') {
-        window.CLIENTE_MODELO_ATRIBUTOS = {};
-    }
+        // Mapa dinmico de modelo/atributo por cliente — viene del backend
+        var CLIENTE_MODELO_ATRIBUTOS = <?= json_encode($reporte['modelo_atributos'] ?? $inventario['modelo_atributos'] ?? []) ?>;
+        if (typeof window.CLIENTE_MODELO_ATRIBUTOS === 'undefined') {
+            window.CLIENTE_MODELO_ATRIBUTOS = {};
+        }
     </script>
     <div class="layout">
         <aside class="sidebar" id="sidebar">
@@ -449,12 +449,14 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
                                     <?php foreach (($inv['sucursales'] ?? []) as $f): ?>
                                         <tr data-sucursal="<?= htmlspecialchars($f['sucursal']) ?>" data-compania="<?= htmlspecialchars($f['compania'] ?? '') ?>">
                                             <td data-campo="sucursal"><?= htmlspecialchars($f['sucursal']) ?></td>
-                                            <?php $rangoIndex = 0; foreach ($rangos as $r): $d = $f['por_rango'][$r] ?? ['uds' => 0, 'valor' => 0, 'pct_part_uds' => 0, 'pct_part_valor' => 0];
+                                            <?php $rangoIndex = 0;
+                                            foreach ($rangos as $r): $d = $f['por_rango'][$r] ?? ['uds' => 0, 'valor' => 0, 'pct_part_uds' => 0, 'pct_part_valor' => 0];
                                                 $udsCampo = $campo . '_uds_' . $rangoIndex;
                                                 $pctCampo = $campo . '_pct_' . $rangoIndex; ?>
                                                 <td class="<?= $esMoneda ? 'dinero' : '' ?>" data-campo="<?= $udsCampo ?>" <?= $esMoneda ? 'data-raw="' . raw($d['valor']) . '"' : '' ?>><?= $esMoneda ? fm($d['valor']) : fnum($d['uds']) ?></td>
                                                 <td class="pct-muted" data-campo="<?= $pctCampo ?>"><?= fp($esMoneda ? ($d['pct_part_valor'] ?? 0) : ($d['pct_part_uds'] ?? 0)) ?></td>
-                                            <?php $rangoIndex++; endforeach; ?>
+                                            <?php $rangoIndex++;
+                                            endforeach; ?>
                                             <td class="<?= $esMoneda ? 'dinero' : '' ?>" data-campo="<?= $campo ?>_uds_total" <?= $esMoneda ? 'data-raw="' . raw($f['total_valor']) . '"' : '' ?>><strong><?= $esMoneda ? fm($f['total_valor']) : fnum($f['total_uds']) ?></strong></td>
                                             <td class="pct-muted" data-campo="<?= $campo ?>_pct_total"><?= fp($esMoneda ? ($f['pct_part_valor_total'] ?? 0) : ($f['pct_part_uds_total'] ?? 0)) ?></td>
                                         </tr>
@@ -466,13 +468,15 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
                                 <tfoot>
                                     <tr class="fila-total">
                                         <td data-campo="sucursal">Total</td>
-                                        <?php $rangoIndex = 0; $tt = $inv['totales']['por_rango'] ?? [];
+                                        <?php $rangoIndex = 0;
+                                        $tt = $inv['totales']['por_rango'] ?? [];
                                         foreach ($rangos as $r): $d = $tt[$r] ?? ['uds' => 0, 'valor' => 0, 'pct_part_uds' => 0, 'pct_part_valor' => 0];
                                             $udsCampo = $campo . '_uds_' . $rangoIndex;
                                             $pctCampo = $campo . '_pct_' . $rangoIndex; ?>
                                             <td class="<?= $esMoneda ? 'dinero' : '' ?>" data-campo="<?= $udsCampo ?>" <?= $esMoneda ? 'data-raw="' . raw($d['valor']) . '"' : '' ?>><?= $esMoneda ? fm($d['valor']) : fnum($d['uds']) ?></td>
                                             <td data-campo="<?= $pctCampo ?>"><?= fp($esMoneda ? ($d['pct_part_valor'] ?? 0) : ($d['pct_part_uds'] ?? 0)) ?></td>
-                                        <?php $rangoIndex++; endforeach; ?>
+                                        <?php $rangoIndex++;
+                                        endforeach; ?>
                                         <td class="<?= $esMoneda ? 'dinero' : '' ?>" data-campo="<?= $campo ?>_uds_total" <?= $esMoneda ? 'data-raw="' . raw($inv['totales']['valor'] ?? 0) . '"' : '' ?>><?= $esMoneda ? fm($inv['totales']['valor'] ?? 0) : fnum($inv['totales']['uds'] ?? 0) ?></td>
                                         <td data-campo="<?= $campo ?>_pct_total">100%</td>
                                     </tr>
@@ -735,63 +739,231 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
                         } else {
                             //Fallback hardcodeado: mismo mapa que el backend
                             var fb = {
-                                "sucursal":          {"modelo": "VentaAuto",    "atributo": "Sucursal"},
-                                "dia_01":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_02":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_03":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_04":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_05":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_06":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_07":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_08":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_09":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_10":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_11":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_12":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_13":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_14":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_15":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_16":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_17":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_18":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_19":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_20":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_21":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_22":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_23":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_24":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_25":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_26":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_27":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_28":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_29":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_30":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "dia_31":            {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "total":             {"modelo": "VentaAuto",    "atributo": "Vta Uds"},
-                                "obj_uds_dia":       {"modelo": "VentaAuto",    "atributo": "Obj_Vta_Uds_al_Dia"},
-                                "pct_alcance_ritmo": {"modelo": "", "atributo": ""},
-                                "obj_uds_mes":       {"modelo": "Objetivos Autos",    "atributo": "Obj_Vta_Uds_Mensual"},
-                                "pct_alcance":       {"modelo": "", "atributo": ""},
-                                "venta":             {"modelo": "VentaAuto",    "atributo": "Vta_Neta"},
-                                "obj_dia":           {"modelo": "VentaAuto",    "atributo": "Obj_Venta_Dia"},
-                                "obj_mes":           {"modelo": "VentaAuto",    "atributo": "Obj_Venta_Mes"},
-                                "margen":            {"modelo": "", "atributo": ""},
-                                "pct_margen":        {"modelo": "", "atributo": ""},
-                                "obj_margen_dia":    {"modelo": "VentaAuto",    "atributo": "Obj_Utilidad_Bruta_Dia"},
-                                "obj_margen_mes":    {"modelo": "VentaAuto",    "atributo": "Obj_Utilidad_Bruta_Mes"},
-                                "alc_ritmo":         {"modelo": "", "atributo": ""},
-                                "alc_obj":           {"modelo": "", "atributo": ""},
-                                "alc_ritmo_margen":  {"modelo": "", "atributo": ""},
-                                "alc_obj_margen":    {"modelo": "", "atributo": ""},
-                                "cartera":           {"modelo": "Cxc",           "atributo": "Saldo"},
-                                "inv_uds":           {"modelo": "InventarioAutos", "atributo": "Uds Existencia"},
-                                "inv_valor":         {"modelo": "InventarioAutos", "atributo": "Inventario"},
-                                "mv":                {"modelo": "", "atributo": ""},
+                                "sucursal": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Sucursal"
+                                },
+                                "dia_01": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_02": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_03": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_04": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_05": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_06": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_07": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_08": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_09": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_10": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_11": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_12": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_13": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_14": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_15": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_16": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_17": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_18": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_19": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_20": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_21": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_22": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_23": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_24": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_25": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_26": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_27": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_28": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_29": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_30": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "dia_31": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "total": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta Uds"
+                                },
+                                "obj_uds_dia": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Obj_Vta_Uds_al_Dia"
+                                },
+                                "pct_alcance_ritmo": {
+                                    "modelo": "",
+                                    "atributo": ""
+                                },
+                                "obj_uds_mes": {
+                                    "modelo": "Objetivos Autos",
+                                    "atributo": "Obj_Vta_Uds_Mensual"
+                                },
+                                "pct_alcance": {
+                                    "modelo": "",
+                                    "atributo": ""
+                                },
+                                "venta": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Vta_Neta"
+                                },
+                                "obj_dia": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Obj_Venta_Dia"
+                                },
+                                "obj_mes": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Obj_Venta_Mes"
+                                },
+                                "margen": {
+                                    "modelo": "",
+                                    "atributo": ""
+                                },
+                                "pct_margen": {
+                                    "modelo": "",
+                                    "atributo": ""
+                                },
+                                "obj_margen_dia": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Obj_Utilidad_Bruta_Dia"
+                                },
+                                "obj_margen_mes": {
+                                    "modelo": "VentaAuto",
+                                    "atributo": "Obj_Utilidad_Bruta_Mes"
+                                },
+                                "alc_ritmo": {
+                                    "modelo": "",
+                                    "atributo": ""
+                                },
+                                "alc_obj": {
+                                    "modelo": "",
+                                    "atributo": ""
+                                },
+                                "alc_ritmo_margen": {
+                                    "modelo": "",
+                                    "atributo": ""
+                                },
+                                "alc_obj_margen": {
+                                    "modelo": "",
+                                    "atributo": ""
+                                },
+                                "cartera": {
+                                    "modelo": "Cxc",
+                                    "atributo": "Saldo"
+                                },
+                                "inv_uds": {
+                                    "modelo": "InventarioAutos",
+                                    "atributo": "Uds Existencia"
+                                },
+                                "inv_valor": {
+                                    "modelo": "InventarioAutos",
+                                    "atributo": "Inventario"
+                                },
+                                "mv": {
+                                    "modelo": "",
+                                    "atributo": ""
+                                },
                             };
                             var fbMeta = fb[colId];
                             if (fbMeta) {
                                 fModelo.value = fbMeta.modelo;
                                 if (fAtributo) fAtributo.value = fbMeta.atributo;
+                            } else if (colId.startsWith('uds_uds_')) {
+                                fModelo.value = 'InventarioAutos';
+                                if (fAtributo) fAtributo.value = 'Uds Existencia';
+                            } else if (colId.startsWith('uds_pct_')) {
+                                fModelo.value = 'InventarioAutos';
+                                if (fAtributo) fAtributo.value = 'Inventario';
+                            } else if (colId.startsWith('valor_uds_')) {
+                                fModelo.value = 'InventarioAutos';
+                                if (fAtributo) fAtributo.value = 'Inventario $';
+                            } else if (colId.startsWith('valor_pct_')) {
+                                fModelo.value = 'InventarioAutos';
+                                if (fAtributo) fAtributo.value = 'Inventario';
                             } else {
                                 fModelo.value = colId;
                                 if (fAtributo) fAtributo.value = '';
@@ -823,8 +995,9 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
                     if (!tabla) return;
                     var titulo = tarjeta.querySelector('.titulo');
                     var nombreTarjeta = titulo ? titulo.textContent.trim() : '';
-                    // Adjuntar clicks a TODAS las tablas (no solo Venta Uds)
-                    var celdas = tabla.querySelectorAll('tbody td[data-dia], tbody td[data-campo], tfoot td[data-dia], tfoot td[data-campo]');
+                    // Adjuntar clicks SOLO a tablas de Venta Uds/Dinero (no a Inventario)
+                    // Excluir campos de rango de inventario (valor_uds_*, valor_pct_*, uds_uds_*, uds_pct_*)
+                    var celdas = tabla.querySelectorAll('tbody td[data-dia], tbody td[data-campo]:not([data-campo^="valor_"]):not([data-campo^="uds_"]), tfoot td[data-dia], tfoot td[data-campo]:not([data-campo^="valor_"]):not([data-campo^="uds_"])');
                     celdas.forEach(function(td) {
                         td.style.cursor = 'pointer';
                         td.title = 'Click para ver detalle';
@@ -906,142 +1079,550 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
                     } else {
                         //Fallback hardcodeado: mismo mapa que el backend
                         var fb = {
-                            "sucursal":          {"modelo": "VentaAuto",       "atributo": "Sucursal"},
-                            "dia_01":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_02":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_03":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_04":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_05":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_06":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_07":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_08":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_09":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_10":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_11":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_12":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_13":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_14":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_15":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_16":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_17":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_18":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_19":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_20":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_21":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_22":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_23":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_24":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_25":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_26":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_27":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_28":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_29":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_30":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "dia_31":            {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "total":             {"modelo": "VentaAuto",       "atributo": "Vta Uds"},
-                            "obj_uds_dia":       {"modelo": "VentaAuto",       "atributo": "Obj_Vta_Uds_al_Dia"},
-                            "pct_alcance_ritmo": {"modelo": "", "atributo": ""},
-                            "obj_uds_mes":       {"modelo": "Objetivos Autos",       "atributo": "Obj_Vta_Uds_Mensual"},
-                            "pct_alcance":       {"modelo": "", "atributo": ""},
-                            "venta":             {"modelo": "VentaAuto",       "atributo": "Vta_Neta"},
-                            "obj_dia":           {"modelo": "VentaAuto",       "atributo": "Obj_Venta_Dia"},
-                            "obj_mes":           {"modelo": "VentaAuto",       "atributo": "Obj_Venta_Mes"},
-                            "margen":            {"modelo": "", "atributo": ""},
-                            "pct_margen":        {"modelo": "", "atributo": ""},
-                            "obj_margen_dia":    {"modelo": "VentaAuto",       "atributo": "Obj_Utilidad_Bruta_Dia"},
-                            "obj_margen_mes":    {"modelo": "VentaAuto",       "atributo": "Obj_Utilidad_Bruta_Mes"},
-                            "alc_ritmo":         {"modelo": "", "atributo": ""},
-                            "alc_obj":           {"modelo": "", "atributo": ""},
-                            "alc_ritmo_margen":  {"modelo": "", "atributo": ""},
-                            "alc_obj_margen":    {"modelo": "", "atributo": ""},
-                            "cartera":           {"modelo": "Cxc",              "atributo": "Saldo"},
-                            "inv_uds":           {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "inv_valor":         {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "mv":                {"modelo": "", "atributo": ""},
-                            "valor_uds_0":       {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_1":       {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_2":       {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_3":       {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_4":       {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_5":       {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_6":       {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_7":       {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_8":       {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_9":       {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_10":      {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_11":      {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_12":      {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_13":      {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_14":      {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_15":      {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_16":      {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_17":      {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_18":      {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_uds_19":      {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_pct_0":        {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_1":        {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_2":        {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_3":        {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_4":        {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_5":        {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_6":        {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_7":        {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_8":        {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_9":        {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_10":       {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_11":       {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_12":       {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_13":       {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_14":       {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_15":       {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_16":       {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_17":       {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_18":       {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_pct_19":       {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "valor_uds_total":    {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "valor_pct_total":    {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_uds_0":          {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_1":          {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_2":          {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_3":          {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_4":          {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_5":          {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_6":          {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_7":          {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_8":          {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_9":          {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_10":         {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_11":         {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_12":         {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_13":         {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_14":         {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_15":         {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_16":         {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_17":         {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_18":         {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_uds_19":         {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_pct_0":          {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_1":          {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_2":          {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_3":          {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_4":          {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_5":          {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_6":          {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_7":          {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_8":          {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_9":          {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_10":         {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_11":         {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_12":         {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_13":         {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_14":         {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_15":         {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_16":         {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_17":         {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_18":         {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_pct_19":         {"modelo": "InventarioAutos",   "atributo": "Inventario"},
-                            "uds_uds_total":      {"modelo": "InventarioAutos",   "atributo": "Uds Existencia"},
-                            "uds_pct_total":      {"modelo": "InventarioAutos",   "atributo": "Inventario"},
+                            "sucursal": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Sucursal"
+                            },
+                            "dia_01": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_02": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_03": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_04": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_05": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_06": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_07": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_08": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_09": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_10": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_11": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_12": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_13": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_14": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_15": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_16": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_17": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_18": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_19": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_20": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_21": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_22": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_23": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_24": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_25": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_26": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_27": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_28": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_29": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_30": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "dia_31": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "total": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta Uds"
+                            },
+                            "obj_uds_dia": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Obj_Vta_Uds_al_Dia"
+                            },
+                            "pct_alcance_ritmo": {
+                                "modelo": "",
+                                "atributo": ""
+                            },
+                            "obj_uds_mes": {
+                                "modelo": "Objetivos Autos",
+                                "atributo": "Obj_Vta_Uds_Mensual"
+                            },
+                            "pct_alcance": {
+                                "modelo": "",
+                                "atributo": ""
+                            },
+                            "venta": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Vta_Neta"
+                            },
+                            "obj_dia": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Obj_Venta_Dia"
+                            },
+                            "obj_mes": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Obj_Venta_Mes"
+                            },
+                            "margen": {
+                                "modelo": "",
+                                "atributo": ""
+                            },
+                            "pct_margen": {
+                                "modelo": "",
+                                "atributo": ""
+                            },
+                            "obj_margen_dia": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Obj_Utilidad_Bruta_Dia"
+                            },
+                            "obj_margen_mes": {
+                                "modelo": "VentaAuto",
+                                "atributo": "Obj_Utilidad_Bruta_Mes"
+                            },
+                            "alc_ritmo": {
+                                "modelo": "",
+                                "atributo": ""
+                            },
+                            "alc_obj": {
+                                "modelo": "",
+                                "atributo": ""
+                            },
+                            "alc_ritmo_margen": {
+                                "modelo": "",
+                                "atributo": ""
+                            },
+                            "alc_obj_margen": {
+                                "modelo": "",
+                                "atributo": ""
+                            },
+                            "cartera": {
+                                "modelo": "Cxc",
+                                "atributo": "Saldo"
+                            },
+                            "inv_uds": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "inv_valor": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "mv": {
+                                "modelo": "",
+                                "atributo": ""
+                            },
+                            "valor_uds_0": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_1": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_2": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_3": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_4": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_5": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_6": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_7": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_8": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_9": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_10": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_11": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_12": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_13": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_14": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_15": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_16": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_17": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_18": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_uds_19": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_pct_0": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_1": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_2": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_3": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_4": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_5": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_6": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_7": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_8": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_9": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_10": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_11": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_12": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_13": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_14": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_15": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_16": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_17": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_18": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_pct_19": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "valor_uds_total": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "valor_pct_total": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_uds_0": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_1": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_2": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_3": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_4": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_5": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_6": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_7": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_8": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_9": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_10": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_11": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_12": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_13": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_14": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_15": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_16": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_17": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_18": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_uds_19": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_pct_0": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_1": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_2": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_3": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_4": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_5": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_6": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_7": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_8": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_9": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_10": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_11": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_12": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_13": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_14": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_15": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_16": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_17": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_18": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_pct_19": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
+                            "uds_uds_total": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Uds Existencia"
+                            },
+                            "uds_pct_total": {
+                                "modelo": "InventarioAutos",
+                                "atributo": "Inventario"
+                            },
                         };
                         var fbMeta = fb[campo];
                         if (fbMeta) {
@@ -1052,8 +1633,8 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
                             if (fAtributo) fAtributo.value = '';
                         }
                     }
-                if (grpModelo) grpModelo.style.display = (fModelo.value && fModelo.value.trim()) ? 'block' : 'none';
-                if (grpAtributo) grpAtributo.style.display = (fAtributo && fAtributo.value && fAtributo.value.trim()) ? 'block' : 'none';
+                    if (grpModelo) grpModelo.style.display = (fModelo.value && fModelo.value.trim()) ? 'block' : 'none';
+                    if (grpAtributo) grpAtributo.style.display = (fAtributo && fAtributo.value && fAtributo.value.trim()) ? 'block' : 'none';
                 }
                 fTitulo.value = titulo;
                 fFormato.value = '#,##0';
