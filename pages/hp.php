@@ -74,9 +74,48 @@ if ($forzarRefresco) {
     unset($_SESSION[$filterKey]['refrescar']);
 }
 
-$mesesDisponibles = [];
-$mesActivo = null;
-$todasCompanias = [];
+$endpoint = '/api/one-page/reporte-hp?codigo_cliente=' . urlencode($codigoCliente);
+if ($mesSeleccionado !== '') $endpoint .= '&mes=' . urlencode($mesSeleccionado);
+if ($forzarRefresco) $endpoint .= '&refrescar=true';
+
+$inicio = microtime(true);
+$rep = apiGet($endpoint);
+$tiempoCarga = round(microtime(true) - $inicio, 2);
+
+function fm(mixed $v): string
+{
+    return '$' . number_format((float)$v, 0, '.', ',');
+}
+function fp(mixed $v): string
+{
+    return $v !== null ? number_format($v, 0) . '%' : '—';
+}
+function fpColor(mixed $v): string
+{
+    if ($v === null) return '<span class="pct-muted">—</span>';
+    if ($v >= 100) $class = 'pct-green';
+    elseif ($v >= 70) $class = 'pct-orange';
+    else $class = 'pct-red';
+    return '<span class="' . $class . '">' . number_format($v, 0) . '%</span>';
+}
+function fnum(mixed $v, int $dec = 0): string
+{
+    return number_format((float)($v ?? 0), $dec);
+}
+function nombreMes(?string $ym): string
+{
+    if (!$ym) return '—';
+    $meses = ['01' => 'Ene', '02' => 'Feb', '03' => 'Mar', '04' => 'Abr', '05' => 'May', '06' => 'Jun', '07' => 'Jul', '08' => 'Ago', '09' => 'Sep', '10' => 'Oct', '11' => 'Nov', '12' => 'Dic'];
+    [$anio, $mes] = explode('-', $ym);
+    return ($meses[$mes] ?? $mes) . ' ' . substr($anio, 2, 2);
+}
+
+$hayError = !empty($rep['error']);
+$todasCompanias = $hayError ? [] : array_unique(array_filter(array_column($rep['sucursales'] ?? [], 'compania')));
+sort($todasCompanias);
+$mesesDisponibles = $rep['meses_disponibles'] ?? [];
+rsort($mesesDisponibles);
+$mesActivo = $rep['mes'] ?? null;
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -138,7 +177,7 @@ $todasCompanias = [];
         <div class="content-wrap" id="contentWrap">
             <?php renderTopbar([
                 'titulo'    => 'One Page — H&amp;P',
-                'subtitulo' => 'Hojalatería y Pintura',
+                'subtitulo' => 'Información actualizada a: ' . nombreMes($mesActivo),
                 'menu'      => true,
                 'usuario'   => $usuario,
                 'codigo_cliente' => $codigoCliente,
@@ -169,27 +208,314 @@ $todasCompanias = [];
                         <label for="mes">Periodo</label>
                         <select id="mes" name="mes">
                             <?php foreach ($mesesDisponibles as $ym): ?>
-                                <option value="<?= htmlspecialchars($ym) ?>" <?= $ym === $mesActivo ? 'selected' : '' ?>><?= htmlspecialchars($ym) ?></option>
+                                <option value="<?= htmlspecialchars($ym) ?>" <?= $ym === $mesActivo ? 'selected' : '' ?>><?= htmlspecialchars(nombreMes($ym)) ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
                     <button class="boton" type="submit" name="refrescar" value="1">&#8635; Actualizar datos</button>
                 </form>
 
-                <div class="barra-exportar">
-                    <button class="btn-exportar" id="btnExportar">
-                        <span class="material-symbols-outlined icon-sm">download</span> Exportar HTML
-                    </button>
-                    <button class="btn-experto" id="btnExperto">
-                        <span class="material-symbols-outlined icon-sm">psychology</span> Experto
-                    </button>
-                </div>
+                <p class="nota-tiempo">Cargado en <?= $tiempoCarga ?>s</p>
 
-                <div class="empty-state">
-                    <span class="material-symbols-outlined" style="font-size:48px;color:#c5c5d4;margin-bottom:16px;">brush</span>
-                    <h2 style="font-family:'Hanken Grotesk',sans-serif;font-size:22px;color:#444652;margin-bottom:8px;">H&amp;P — Hojalatería y Pintura</h2>
-                    <p style="color:#757683;font-size:14px;">Módulo en preparación. Próximamente estará disponible.</p>
-                </div>
+                <?php if ($hayError): ?>
+                    <div class="error"><strong>No se pudo cargar:</strong> <?= htmlspecialchars($rep['message'] ?? '') ?></div>
+                <?php else: ?>
+
+                    <?php if (!empty($rep['supuestos'])): ?>
+                        <div class="aviso-warning">
+                            <strong>⚠️ Supuestos pendientes de confirmar:</strong>
+                            <ul class="aviso-list">
+                                <?php foreach ($rep['supuestos'] as $s): ?><li><?= htmlspecialchars($s) ?></li><?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!empty($rep['advertencias'])): ?>
+                        <div class="aviso-warning aviso-error">
+                            <strong>⚠️ Posible desajuste de datos:</strong>
+                            <ul class="aviso-list">
+                                <?php foreach ($rep['advertencias'] as $a): ?><li><?= htmlspecialchars($a) ?></li><?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="barra-exportar">
+                        <button class="btn-exportar" id="btnExportar">
+                            <span class="material-symbols-outlined icon-sm">download</span> Exportar HTML
+                        </button>
+                        <button class="btn-experto" id="btnExperto">
+                            <span class="material-symbols-outlined icon-sm">psychology</span> Experto
+                        </button>
+                    </div>
+
+                    <?php $od = $rep['ordenes_recibidas'] ?? [];
+                    $dias = $od['dias'] ?? []; ?>
+                    <div class="tarjeta">
+                        <div class="titulo">Órdenes Recibidas (por día)</div>
+                        <div class="fila-scroll">
+                            <?php if (empty($dias)): ?>
+                                <p class="padding-md">Sin órdenes recibidas capturadas para este periodo.</p>
+                            <?php else: ?>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th data-col-id="sucursal">Sucursal</th>
+                                            <?php foreach ($dias as $d): $dd = str_pad($d, 2, '0', STR_PAD_LEFT); ?><th data-col-id="recibidas_dia_<?= $dd ?>"><?= $dd ?></th><?php endforeach; ?>
+                                            <th data-col-id="recibidas_total">Total</th>
+                                            <th data-col-id="recibidas_aseguradoras">Aseguradoras</th>
+                                            <th data-col-id="recibidas_publico">Público</th>
+                                            <th data-col-id="recibidas_usado">Usado</th>
+                                            <th data-col-id="recibidas_nuevos">Nuevos</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach (($od['sucursales'] ?? []) as $f): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($f['sucursal']) ?></td>
+                                                <?php foreach ($dias as $d): $v = $f['por_dia'][$d] ?? 0; ?>
+                                                    <td><?= $v ? fnum($v) : '' ?></td>
+                                                <?php endforeach; ?>
+                                                <td><strong><?= fnum($f['total']) ?></strong></td>
+                                                <td><?= fnum($f['aseguradoras']) ?></td>
+                                                <td><?= fnum($f['publico']) ?></td>
+                                                <td><?= fnum($f['usado']) ?></td>
+                                                <td><?= fnum($f['nuevos']) ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td>Total</td>
+                                            <?php $t = $od['totales'] ?? [];
+                                            foreach ($dias as $d): $v = $t['por_dia'][$d] ?? 0; ?>
+                                                <td><?= $v ? fnum($v) : '' ?></td>
+                                            <?php endforeach; ?>
+                                            <td><?= fnum($t['total'] ?? 0) ?></td>
+                                            <td><?= fnum($t['aseguradoras'] ?? 0) ?></td>
+                                            <td><?= fnum($t['publico'] ?? 0) ?></td>
+                                            <td><?= fnum($t['usado'] ?? 0) ?></td>
+                                            <td><?= fnum($t['nuevos'] ?? 0) ?></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <?php $estatus = $rep['ordenes_estatus'] ?? []; ?>
+                    <div class="tarjetas-fila">
+                        <?php
+                        $cards = [
+                            ['key' => 'abiertas', 'titulo' => 'Órdenes Abiertas', 'aged_label' => 'Más 30 Días', 'con_aged_pct' => true],
+                            ['key' => 'en_proceso', 'titulo' => 'Órdenes en Proceso', 'aged_label' => 'Más 30 Días', 'con_aged_pct' => true],
+                            ['key' => 'pendientes_facturar', 'titulo' => 'Órdenes Pendientes de Facturar', 'aged_label' => 'Más 30 Días', 'con_aged_pct' => false],
+                        ];
+                        foreach ($cards as $c):
+                            $bloque = $estatus[$c['key']] ?? [];
+                            $filas = $bloque['sucursales'] ?? [];
+                            $tot = $bloque['totales'] ?? [];
+                            $colspan = $c['con_aged_pct'] ? 7 : 6;
+                        ?>
+                        <div class="tarjeta">
+                            <div class="titulo"><?= htmlspecialchars($c['titulo']) ?></div>
+                            <div class="fila-scroll">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th data-col-id="sucursal">Sucursal</th>
+                                            <th data-col-id="<?= $c['key'] ?>_ordenes">O.R.</th>
+                                            <th data-col-id="<?= $c['key'] ?>_pct_mes">%</th>
+                                            <th data-col-id="<?= $c['key'] ?>_importe">Importe</th>
+                                            <th data-col-id="<?= $c['key'] ?>_aged_count"><?= htmlspecialchars($c['aged_label']) ?></th>
+                                            <?php if ($c['con_aged_pct']): ?>
+                                                <th data-col-id="<?= $c['key'] ?>_aged_pct">%</th>
+                                            <?php endif; ?>
+                                            <th data-col-id="<?= $c['key'] ?>_aged_importe">Imp. <?= htmlspecialchars($c['aged_label']) ?><?= !$c['con_aged_pct'] ? '*' : '' ?></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (empty($filas)): ?>
+                                            <tr><td colspan="<?= $colspan ?>">Sin registros.</td></tr>
+                                        <?php endif; ?>
+                                        <?php foreach ($filas as $f): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($f['sucursal']) ?></td>
+                                                <td><?= fnum($f['ordenes']) ?></td>
+                                                <td class="pct-muted"><?= fp($f['pct_mes']) ?></td>
+                                                <td><?= fm($f['importe']) ?></td>
+                                                <td><?= fnum($f['aged_count']) ?></td>
+                                                <?php if ($c['con_aged_pct']): ?>
+                                                    <td class="pct-muted"><?= fp($f['aged_pct']) ?></td>
+                                                <?php endif; ?>
+                                                <td><?= fm($f['aged_importe']) ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="fila-total">
+                                            <td>Total</td>
+                                            <td><?= fnum($tot['ordenes'] ?? 0) ?></td>
+                                            <td class="pct-muted"><?= fp($tot['pct_mes'] ?? null) ?></td>
+                                            <td><?= fm($tot['importe'] ?? 0) ?></td>
+                                            <td><?= fnum($tot['aged_count'] ?? 0) ?></td>
+                                            <?php if ($c['con_aged_pct']): ?>
+                                                <td class="pct-muted"><?= fp($tot['aged_pct'] ?? null) ?></td>
+                                            <?php endif; ?>
+                                            <td><?= fm($tot['aged_importe'] ?? 0) ?></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                                <?php if (!$c['con_aged_pct']): ?>
+                                    <p class="padding-md pct-muted">* Importe igual al total (no se puede desglosar por antigüedad con el dato fuente) — ver aviso de supuestos arriba.</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <?php $of = $rep['ordenes_facturadas'] ?? [];
+                    $diasF = $of['dias'] ?? []; ?>
+                    <div class="tarjeta">
+                        <div class="titulo">Órdenes Facturadas (por día)</div>
+                        <div class="fila-scroll">
+                            <?php if (empty($diasF)): ?>
+                                <p class="padding-md">Sin órdenes facturadas capturadas para este periodo.</p>
+                            <?php else: ?>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th data-col-id="sucursal">Sucursal</th>
+                                            <?php foreach ($diasF as $d): $ddf = str_pad($d, 2, '0', STR_PAD_LEFT); ?><th data-col-id="facturadas_dia_<?= $ddf ?>"><?= $ddf ?></th><?php endforeach; ?>
+                                            <th data-col-id="facturadas_total">Total</th>
+                                            <th data-col-id="facturadas_obj_dia">Objetivo al Día</th>
+                                            <th data-col-id="facturadas_alcance_ritmo_pct">%</th>
+                                            <th data-col-id="facturadas_obj_mes">Objetivo</th>
+                                            <th data-col-id="facturadas_alcance_objetivo_pct">%</th>
+                                            <th data-col-id="facturadas_aseguradoras">Aseguradoras</th>
+                                            <th data-col-id="facturadas_publico">Público</th>
+                                            <th data-col-id="facturadas_usado">Usado</th>
+                                            <th data-col-id="facturadas_nuevos">Nuevos</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach (($of['sucursales'] ?? []) as $f): ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($f['sucursal']) ?></td>
+                                                <?php foreach ($diasF as $d): $v = $f['por_dia'][$d] ?? 0; ?>
+                                                    <td><?= $v ? fnum($v) : '' ?></td>
+                                                <?php endforeach; ?>
+                                                <td><strong><?= fnum($f['total']) ?></strong></td>
+                                                <td><?= fnum($f['obj_dia']) ?></td>
+                                                <td><?= fpColor($f['alcance_ritmo_pct']) ?></td>
+                                                <td><?= fnum($f['obj_mes']) ?></td>
+                                                <td><?= fpColor($f['alcance_objetivo_pct']) ?></td>
+                                                <td><?= fnum($f['aseguradoras']) ?></td>
+                                                <td><?= fnum($f['publico']) ?></td>
+                                                <td><?= fnum($f['usado']) ?></td>
+                                                <td><?= fnum($f['nuevos']) ?></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td>Total</td>
+                                            <?php $tf = $of['totales'] ?? [];
+                                            foreach ($diasF as $d): $v = $tf['por_dia'][$d] ?? 0; ?>
+                                                <td><?= $v ? fnum($v) : '' ?></td>
+                                            <?php endforeach; ?>
+                                            <td><?= fnum($tf['total'] ?? 0) ?></td>
+                                            <td><?= fnum($tf['obj_dia'] ?? 0) ?></td>
+                                            <td><?= fpColor($tf['alcance_ritmo_pct'] ?? null) ?></td>
+                                            <td><?= fnum($tf['obj_mes'] ?? 0) ?></td>
+                                            <td><?= fpColor($tf['alcance_objetivo_pct'] ?? null) ?></td>
+                                            <td><?= fnum($tf['aseguradoras'] ?? 0) ?></td>
+                                            <td><?= fnum($tf['publico'] ?? 0) ?></td>
+                                            <td><?= fnum($tf['usado'] ?? 0) ?></td>
+                                            <td><?= fnum($tf['nuevos'] ?? 0) ?></td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+
+                    <div class="tarjeta">
+                        <div class="titulo">Venta H&amp;P ($)</div>
+                        <div class="fila-scroll">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th data-col-id="sucursal">Sucursal</th>
+                                        <th data-col-id="venta">Venta</th>
+                                        <th data-col-id="obj_venta_dia">Obj al Día</th>
+                                        <th data-col-id="alcance_ritmo_pct">%Alcance Ritmo</th>
+                                        <th data-col-id="obj_venta_mes">Obj Ventas</th>
+                                        <th data-col-id="alcance_objetivo_pct">%Alcance Objetivo</th>
+                                        <th data-col-id="margen">Margen Bruto</th>
+                                        <th data-col-id="pct_margen">%Margen</th>
+                                        <th data-col-id="obj_margen_dia">Obj Margen/Día</th>
+                                        <th data-col-id="alcance_ritmo_margen_pct">%Alcance Ritmo</th>
+                                        <th data-col-id="obj_margen_mes">Obj Margen</th>
+                                        <th data-col-id="alcance_objetivo_margen_pct">%Alcance Objetivo</th>
+                                        <th data-col-id="cartera">Cartera</th>
+                                        <th data-col-id="ticket_prom_real">Ticket Prom. Real</th>
+                                        <th data-col-id="ticket_prom_objetivo">Ticket Prom. Objetivo</th>
+                                        <th data-col-id="variacion">Variación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach (($rep['sucursales'] ?? []) as $f): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($f['sucursal']) ?></td>
+                                            <td><?= fm($f['venta']) ?></td>
+                                            <td><?= fm($f['obj_venta_dia']) ?></td>
+                                            <td><?= fpColor($f['alcance_ritmo_pct']) ?></td>
+                                            <td><?= fm($f['obj_venta_mes']) ?></td>
+                                            <td><?= fpColor($f['alcance_objetivo_pct']) ?></td>
+                                            <td class="<?= $f['margen'] < 0 ? 'neg' : '' ?>"><?= fm($f['margen']) ?></td>
+                                            <td><?= fp($f['pct_margen']) ?></td>
+                                            <td><?= fm($f['obj_margen_dia']) ?></td>
+                                            <td><?= fpColor($f['alcance_ritmo_margen_pct']) ?></td>
+                                            <td><?= fm($f['obj_margen_mes']) ?></td>
+                                            <td><?= fpColor($f['alcance_objetivo_margen_pct']) ?></td>
+                                            <td><?= fm($f['cartera']) ?></td>
+                                            <td><?= $f['ticket_prom_real'] !== null ? fm($f['ticket_prom_real']) : '—' ?></td>
+                                            <td><?= $f['ticket_prom_objetivo'] !== null ? fm($f['ticket_prom_objetivo']) : '—' ?></td>
+                                            <td class="<?= ($f['variacion'] ?? 0) < 0 ? 'neg' : '' ?>">
+                                                <?= $f['variacion'] !== null ? fm($f['variacion']) . ' (' . fp($f['variacion_pct']) . ')' : '—' ?>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                    <?php if (empty($rep['sucursales'])): ?><tr>
+                                            <td colspan="16">Sin registros.</td>
+                                        </tr><?php endif; ?>
+                                </tbody>
+                                <tfoot>
+                                    <?php $t = $rep['totales'] ?? []; ?>
+                                    <tr>
+                                        <td>Total</td>
+                                        <td><?= fm($t['venta'] ?? 0) ?></td>
+                                        <td><?= fm($t['obj_venta_dia'] ?? 0) ?></td>
+                                        <td><?= fpColor($t['alcance_ritmo_pct'] ?? null) ?></td>
+                                        <td><?= fm($t['obj_venta_mes'] ?? 0) ?></td>
+                                        <td><?= fpColor($t['alcance_objetivo_pct'] ?? null) ?></td>
+                                        <td><?= fm($t['margen'] ?? 0) ?></td>
+                                        <td><?= fp($t['pct_margen'] ?? null) ?></td>
+                                        <td><?= fm($t['obj_margen_dia'] ?? 0) ?></td>
+                                        <td><?= fpColor($t['alcance_ritmo_margen_pct'] ?? null) ?></td>
+                                        <td><?= fm($t['obj_margen_mes'] ?? 0) ?></td>
+                                        <td><?= fpColor($t['alcance_objetivo_margen_pct'] ?? null) ?></td>
+                                        <td><?= fm($t['cartera'] ?? 0) ?></td>
+                                        <td><?= isset($t['ticket_prom_real']) && $t['ticket_prom_real'] !== null ? fm($t['ticket_prom_real']) : '—' ?></td>
+                                        <td>—</td>
+                                        <td>—</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                <?php endif; ?>
             </main>
         </div>
     </div>
@@ -199,16 +525,13 @@ $todasCompanias = [];
         document.getElementById('btnExportar')?.addEventListener('click', function() {
             var win = window.open('', '_blank');
             if (!win) { alert('Permite ventanas emergentes para exportar.'); return; }
-            var tables = document.querySelectorAll('table');
-            if (!tables.length) return;
-            var clone = tables[0].cloneNode(true);
+            var clone = document.querySelector('main').cloneNode(true);
             clone.querySelectorAll('[style]').forEach(function(el) { el.removeAttribute('style'); });
-            win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>H&amp;P - Exportaci\u00F3n</title>' +
+            win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>H&amp;P - Exportación</title>' +
                 '<style>body{font-family:Inter,sans-serif;font-size:13px;padding:20px;color:#0b1c30;}' +
-                'table{width:100%;border-collapse:collapse;}' +
+                'table{width:100%;border-collapse:collapse;margin-bottom:20px;}' +
                 'th{background:#eff4ff;padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;border:1px solid #c5c5d4;}' +
                 'td{padding:8px 12px;border:1px solid #c5c5d4;}' +
-                '.num{text-align:right;}' +
                 '</style></head><body>');
             win.document.write(clone.outerHTML);
             win.document.write('</body></html>');
@@ -218,6 +541,166 @@ $todasCompanias = [];
         document.getElementById('btnExperto')?.addEventListener('click', function() {
             alert('Modo experto: próximamente disponible.');
         });
+    </script>
+
+    <?php renderSidebar('One Page H&P — Detalle', function () { ?>
+        <div class="sidebar-row-context" id="rowContext"></div>
+        <form class="sidebar-form" id="sidebarForm">
+            <div class="sidebar-form-group" id="grpModelo">
+                <label for="fModelo">Modelo <span class="sidebar-nota">(campo backend)</span></label>
+                <input type="text" id="fModelo" name="modelo" readonly>
+            </div>
+            <div class="sidebar-form-group" id="grpAtributo">
+                <label for="fAtributo">Atributo <span class="sidebar-nota">(campo del modelo)</span></label>
+                <input type="text" id="fAtributo" name="atributo" readonly>
+            </div>
+            <div class="sidebar-form-group">
+                <label for="fTitulo">Titulo</label>
+                <input type="text" id="fTitulo" name="titulo" placeholder="Nombre de la columna" required>
+            </div>
+            <div class="sidebar-form-group">
+                <label for="fFormato">Formato</label>
+                <input type="text" id="fFormato" name="formato" placeholder="Formato de visualizacion">
+            </div>
+            <button type="submit" class="sidebar-btn-guardar">Guardar</button>
+        </form>
+    <?php }); ?>
+    <script src="../assets/js/sidebar.js"></script>
+    <script nonce="<?= cspStyleNonce() ?>">
+        (function () {
+            'use strict';
+            var context = document.getElementById('rowContext');
+            var form = document.getElementById('sidebarForm');
+            var fModelo = document.getElementById('fModelo');
+            var fAtributo = document.getElementById('fAtributo');
+            var fTitulo = document.getElementById('fTitulo');
+            var fFormato = document.getElementById('fFormato');
+            var grpModelo = document.getElementById('grpModelo');
+            var grpAtributo = document.getElementById('grpAtributo');
+
+            if (!context || !form) {
+                console.error('[SIDEBAR] Faltan elementos del formulario');
+                return;
+            }
+
+            var MODELO_VSR = 'VentaServicioRefaccion';
+            var MODELO_OBJ = 'ObjetivoServicio';
+
+            var camposModelos = {
+                'recibidas_total': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Recibidas' },
+                'recibidas_aseguradoras': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Recibidas' },
+                'recibidas_publico': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Recibidas' },
+                'recibidas_usado': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Recibidas' },
+                'recibidas_nuevos': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Recibidas' },
+                'facturadas_total': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Facturadas' },
+                'facturadas_aseguradoras': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Facturadas' },
+                'facturadas_publico': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Facturadas' },
+                'facturadas_usado': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Facturadas' },
+                'facturadas_nuevos': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Facturadas' },
+                'facturadas_obj_dia': { modelo: MODELO_OBJ, atributo: 'Obj_Ordenes_Reparacion_al_Dia' },
+                'facturadas_obj_mes': { modelo: MODELO_OBJ, atributo: 'Obj_Ordenes_Reparacion' },
+                'en_proceso_ordenes': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_en_Proceso' },
+                'en_proceso_importe': { modelo: MODELO_VSR, atributo: 'Venta_en_Proceso' },
+                'en_proceso_aged_count': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_en_Proceso' },
+                'en_proceso_aged_importe': { modelo: MODELO_VSR, atributo: 'Venta_en_Proceso' },
+                'pendientes_facturar_ordenes': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Pendientes_Fact' },
+                'pendientes_facturar_importe': { modelo: MODELO_VSR, atributo: 'Venta_x_Facturar' },
+                'pendientes_facturar_aged_count': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Pendientes_Fact' },
+                'pendientes_facturar_aged_importe': { modelo: MODELO_VSR, atributo: 'Venta_x_Facturar' },
+                'abiertas_ordenes': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_en_Proceso + Cantidad_Ordenes_Reparacion_Pendientes_Fact' },
+                'abiertas_importe': { modelo: MODELO_VSR, atributo: 'Venta_en_Proceso + Venta_x_Facturar' },
+                'abiertas_aged_count': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_en_Proceso + Cantidad_Ordenes_Reparacion_Pendientes_Fact' },
+                'abiertas_aged_importe': { modelo: MODELO_VSR, atributo: 'Venta_en_Proceso + Venta_x_Facturar' },
+                'venta': { modelo: MODELO_VSR, atributo: 'Venta' },
+                'obj_venta_dia': { modelo: MODELO_OBJ, atributo: 'Obj_Vta_al_Dia' },
+                'obj_venta_mes': { modelo: MODELO_OBJ, atributo: 'Obj_Vta_Mes' },
+                'margen': { modelo: MODELO_VSR, atributo: 'Venta - Costo_Neto' },
+                'obj_margen_dia': { modelo: MODELO_OBJ, atributo: 'Obj_Utilidad_al_Dia' },
+                'obj_margen_mes': { modelo: MODELO_OBJ, atributo: 'Obj_Utilidad_Mes' },
+                'cartera': { modelo: 'Cxc', atributo: 'Saldo' },
+                'ticket_prom_real': { modelo: MODELO_VSR, atributo: 'Venta / Cantidad_Ordenes_Reparacion_Recibidas' },
+                'ticket_prom_objetivo': { modelo: MODELO_OBJ, atributo: 'Ticket_Prom_Objetivo_HyP' }
+            };
+
+            var SIN_MODELO_PREFIJOS = ['_pct_mes', '_aged_pct', '_alcance_ritmo_pct', '_alcance_objetivo_pct'];
+            var SIN_MODELO_EXACTOS = ['alcance_ritmo_pct', 'alcance_objetivo_pct', 'pct_margen',
+                'alcance_ritmo_margen_pct', 'alcance_objetivo_margen_pct', 'variacion'];
+
+            function buscarMeta(colId) {
+                if (colId.indexOf('recibidas_dia_') === 0) {
+                    return { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Recibidas' };
+                }
+                if (colId.indexOf('facturadas_dia_') === 0) {
+                    return { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Facturadas' };
+                }
+                return camposModelos[colId] || null;
+            }
+
+            function sinModelo(colId) {
+                if (SIN_MODELO_EXACTOS.indexOf(colId) !== -1) return true;
+                for (var i = 0; i < SIN_MODELO_PREFIJOS.length; i++) {
+                    if (colId.indexOf(SIN_MODELO_PREFIJOS[i]) !== -1) return true;
+                }
+                return false;
+            }
+
+            function llenarSidebar(th) {
+                var colId = th.dataset.colId || '';
+                var colNombre = th.textContent.trim();
+
+                context.innerHTML =
+                    '<div class="sidebar-context-row">' +
+                    '<span class="sidebar-context-label">Columna</span>' +
+                    '<span class="sidebar-context-value">' + colNombre + '</span>' +
+                    '</div>';
+
+                if (colId === 'sucursal' || sinModelo(colId)) {
+                    if (grpModelo) grpModelo.style.display = 'none';
+                    if (grpAtributo) grpAtributo.style.display = 'none';
+                    if (fModelo) fModelo.value = '';
+                    if (fAtributo) fAtributo.value = '';
+                } else {
+                    var meta = buscarMeta(colId);
+                    if (grpModelo) grpModelo.style.display = 'block';
+                    if (grpAtributo) grpAtributo.style.display = 'block';
+                    if (fModelo) fModelo.value = meta ? meta.modelo : colId;
+                    if (fAtributo) fAtributo.value = meta ? meta.atributo : '';
+                }
+
+                if (fTitulo) fTitulo.value = colNombre;
+                if (fFormato) fFormato.value = '#,##0';
+
+                if (window.openSidebar) window.openSidebar();
+            }
+
+            function asignarClicksATablas() {
+                var tarjetas = document.querySelectorAll('.tarjeta');
+                tarjetas.forEach(function (tarjeta) {
+                    var tabla = tarjeta.querySelector('table');
+                    if (!tabla) return;
+                    var headers = tabla.querySelectorAll('thead th[data-col-id]');
+                    headers.forEach(function (th) {
+                        if (th.hasAttribute('colspan') && parseInt(th.getAttribute('colspan'), 10) > 1) return;
+                        th.style.cursor = 'pointer';
+                        th.title = 'Click para ver detalle';
+                        th.addEventListener('click', function (e) {
+                            if (e.target.closest('a') || e.target.closest('button')) return;
+                            llenarSidebar(th);
+                        });
+                    });
+                });
+            }
+
+            asignarClicksATablas();
+
+            if (form) {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    if (!fTitulo || !fTitulo.value.trim()) return;
+                    if (window.closeSidebar) window.closeSidebar();
+                });
+            }
+        })();
     </script>
 </body>
 
