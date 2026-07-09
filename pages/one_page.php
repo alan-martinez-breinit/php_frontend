@@ -193,6 +193,8 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
                     <button type="submit"><span class="material-symbols-outlined">time_to_leave</span> Autos Seminuevos</button>
                 </form>
                 <a href="one_page_taller.php"><span class="material-symbols-outlined">build</span> Taller</a>
+                <a href="hp.php"><span class="material-symbols-outlined">brush</span> H&amp;P</a>
+                <a href="refacciones.php"><span class="material-symbols-outlined">inventory_2</span> REFACCIONES</a>
             </nav>
         </aside>
         <div class="content-wrap" id="contentWrap">
@@ -247,6 +249,9 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
                 <div class="barra-exportar">
                     <button class="btn-exportar" id="btn-exportar">
                         <span class="material-symbols-outlined icon-sm">download</span> Exportar HTML
+                    </button>
+                    <button class="btn-experto" id="btn-experto">
+                        <span class="material-symbols-outlined icon-sm">psychology</span> Experto
                     </button>
                 </div>
 
@@ -334,7 +339,7 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
                         ['id' => 'alc_ritmo',   'label' => '%Alcance Ritmo', 'html' => true,                                        'formato' => '#,##0%', 'formula' => '{(2) VENTA}/{(18) OBJETIVO AL DIA}'],
                         ['id' => 'obj_mes',     'label' => 'Obj Ventas',   'clase' => 'dinero', 'raw_id' => 'obj_mes_raw',          'formato' => '$#,##0'],
                         ['id' => 'alc_obj',     'label' => '%Alcance Objetivo', 'html' => true,                                     'formato' => '#,##0%', 'formula' => '{(2) VENTA} / {(20) OBJETIVO VENTAS}'],
-                        ['id' => 'margen',      'label' => 'Margen Bruto', 'clase' => 'dinero', 'clase_campo' => 'margen_clase', 'raw_id' => 'margen_raw',      'formato' => '$#,##0'],
+                        ['id' => 'margen',      'label' => 'Margen Bruto', 'clase' => 'dinero', 'clase_campo' => 'margen_clase', 'raw_id' => 'margen_raw',      'formato' => '$#,##0', 'formula' => '{Vta Neta $} -{Costo Neto}+{Nota Car/Cre Cliente $}+{Bonificacion Planta $}+{Imp Accesorios}+{Importe Bonificacion}'],
                         ['id' => 'pct_margen',  'label' => '%Margen',                                                               'formato' => '#,##0%', 'formula' => '{(22) MARGEN BRUTO} / {(2) VENTA}'],
                         ['id' => 'obj_margen_dia', 'label' => 'Obj Margen/Día', 'clase' => 'dinero', 'raw_id' => 'obj_margen_dia_raw', 'formato' => '$#,##0'],
                         ['id' => 'alc_ritmo_margen', 'label' => '%Alcance Ritmo', 'html' => true,                                   'formato' => '#,##0%', 'formula' => '{(22) MARGEN BRUTO} / {(26) OBJ UTILIDAD BRUTA DIA}'],
@@ -901,7 +906,7 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
                                 },
                                 "margen": {
                                     "modelo": "VentaAuto",
-                                    "atributo": "Vta_Neta - Costo_Neto"
+                                    "atributo": "Utilidad Bruta $"
                                 },
                                 "pct_margen": {
                                     "modelo": "",
@@ -1241,7 +1246,7 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
                             },
                             "margen": {
                                 "modelo": "VentaAuto",
-                                "atributo": "Vta_Neta - Costo_Neto"
+                                "atributo": "Utilidad Bruta $"
                             },
                             "pct_margen": {
                                 "modelo": "",
@@ -1675,6 +1680,10 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
                 });
             }
         })();
+
+        document.getElementById('btn-experto')?.addEventListener('click', function() {
+            alert('Modo experto: próximamente disponible.');
+        });
     </script>
 </body>
 

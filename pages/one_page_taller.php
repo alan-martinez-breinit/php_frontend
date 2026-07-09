@@ -153,6 +153,8 @@ $mesActivo = $rep['mes'] ?? null;
                     <button type="submit"><span class="material-symbols-outlined">time_to_leave</span> Autos Seminuevos</button>
                 </form>
                 <a href="one_page_taller.php" class="activo"><span class="material-symbols-outlined">build</span> Taller</a>
+                <a href="hp.php"><span class="material-symbols-outlined">brush</span> H&amp;P</a>
+                <a href="refacciones.php"><span class="material-symbols-outlined">inventory_2</span> REFACCIONES</a>
             </nav>
         </aside>
         <div class="content-wrap" id="contentWrap">
@@ -185,27 +187,30 @@ $mesActivo = $rep['mes'] ?? null;
                 <?php else: ?>
 
                     <?php if (!empty($rep['supuestos'])): ?>
-        <div class="aviso-warning">
-            <strong>⚠️ Supuestos pendientes de confirmar:</strong>
-            <ul class="aviso-list">
-                <?php foreach ($rep['supuestos'] as $s): ?><li><?= htmlspecialchars($s) ?></li><?php endforeach; ?>
-            </ul>
-        </div>
-    <?php endif; ?>
+                        <div class="aviso-warning">
+                            <strong>⚠️ Supuestos pendientes de confirmar:</strong>
+                            <ul class="aviso-list">
+                                <?php foreach ($rep['supuestos'] as $s): ?><li><?= htmlspecialchars($s) ?></li><?php endforeach; ?>
+                            </ul>
+                        </div>
+                    <?php endif; ?>
 
-    <?php if (!empty($rep['advertencias'])): ?>
-        <div class="aviso-warning aviso-error">
-            <strong>⚠️ Posible desajuste de datos:</strong>
-            <ul class="aviso-list">
-                <?php foreach ($rep['advertencias'] as $a): ?><li><?= htmlspecialchars($a) ?></li><?php endforeach; ?>
-            </ul>
-        </div>
+                    <?php if (!empty($rep['advertencias'])): ?>
+                        <div class="aviso-warning aviso-error">
+                            <strong>⚠️ Posible desajuste de datos:</strong>
+                            <ul class="aviso-list">
+                                <?php foreach ($rep['advertencias'] as $a): ?><li><?= htmlspecialchars($a) ?></li><?php endforeach; ?>
+                            </ul>
+                        </div>
                     <?php endif; ?>
 
                     <div class="barra-exportar">
-                    <button class="btn-exportar" id="btn-exportar">
-                        <span class="material-symbols-outlined icon-sm">download</span> Exportar HTML
-                    </button>
+                        <button class="btn-exportar" id="btn-exportar">
+                            <span class="material-symbols-outlined icon-sm">download</span> Exportar HTML
+                        </button>
+                        <button class="btn-experto" id="btn-experto">
+                            <span class="material-symbols-outlined icon-sm">psychology</span> Experto
+                        </button>
                     </div>
 
                     <?php $od = $rep['ordenes_recibidas'] ?? [];
@@ -272,54 +277,56 @@ $mesActivo = $rep['mes'] ?? null;
                             $filas = $bloque['sucursales'] ?? [];
                             $tot = $bloque['totales'] ?? [];
                         ?>
-                        <div class="tarjeta">
-                            <div class="titulo"><?= htmlspecialchars($c['titulo']) ?></div>
-                            <div class="fila-scroll">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th data-col-id="sucursal">Sucursal</th>
-                                            <th data-col-id="<?= $c['key'] ?>_ordenes">O.R.</th>
-                                            <th data-col-id="<?= $c['key'] ?>_pct_mes">%</th>
-                                            <th data-col-id="<?= $c['key'] ?>_importe">Importe</th>
-                                            <th data-col-id="<?= $c['key'] ?>_aged_count"><?= htmlspecialchars($c['aged_label']) ?></th>
-                                            <th data-col-id="<?= $c['key'] ?>_aged_pct">%</th>
-                                            <th data-col-id="<?= $c['key'] ?>_aged_importe">Imp. <?= htmlspecialchars($c['aged_label']) ?><?= $c['estimado'] ? '*' : '' ?></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php if (empty($filas)): ?>
-                                            <tr><td colspan="7">Sin registros.</td></tr>
-                                        <?php endif; ?>
-                                        <?php foreach ($filas as $f): ?>
+                            <div class="tarjeta">
+                                <div class="titulo"><?= htmlspecialchars($c['titulo']) ?></div>
+                                <div class="fila-scroll">
+                                    <table>
+                                        <thead>
                                             <tr>
-                                                <td><?= htmlspecialchars($f['sucursal']) ?></td>
-                                                <td><?= fnum($f['ordenes']) ?></td>
-                                                <td class="pct-muted"><?= fp($f['pct_mes']) ?></td>
-                                                <td><?= fm($f['importe']) ?></td>
-                                                <td><?= fnum($f['aged_count']) ?></td>
-                                                <td class="pct-muted"><?= fp($f['aged_pct']) ?></td>
-                                                <td><?= fm($f['aged_importe']) ?></td>
+                                                <th data-col-id="sucursal">Sucursal</th>
+                                                <th data-col-id="<?= $c['key'] ?>_ordenes">O.R.</th>
+                                                <th data-col-id="<?= $c['key'] ?>_pct_mes">%</th>
+                                                <th data-col-id="<?= $c['key'] ?>_importe">Importe</th>
+                                                <th data-col-id="<?= $c['key'] ?>_aged_count"><?= htmlspecialchars($c['aged_label']) ?></th>
+                                                <th data-col-id="<?= $c['key'] ?>_aged_pct">%</th>
+                                                <th data-col-id="<?= $c['key'] ?>_aged_importe">Imp. <?= htmlspecialchars($c['aged_label']) ?><?= $c['estimado'] ? '*' : '' ?></th>
                                             </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                    <tfoot>
-                                        <tr class="fila-total">
-                                            <td>Total</td>
-                                            <td><?= fnum($tot['ordenes'] ?? 0) ?></td>
-                                            <td class="pct-muted"><?= fp($tot['pct_mes'] ?? null) ?></td>
-                                            <td><?= fm($tot['importe'] ?? 0) ?></td>
-                                            <td><?= fnum($tot['aged_count'] ?? 0) ?></td>
-                                            <td class="pct-muted"><?= fp($tot['aged_pct'] ?? null) ?></td>
-                                            <td><?= fm($tot['aged_importe'] ?? 0) ?></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                                <?php if ($c['estimado']): ?>
-                                    <p class="padding-md pct-muted">* Importe estimado proporcionalmente (no es una suma exacta) — ver aviso de supuestos arriba.</p>
-                                <?php endif; ?>
+                                        </thead>
+                                        <tbody>
+                                            <?php if (empty($filas)): ?>
+                                                <tr>
+                                                    <td colspan="7">Sin registros.</td>
+                                                </tr>
+                                            <?php endif; ?>
+                                            <?php foreach ($filas as $f): ?>
+                                                <tr>
+                                                    <td><?= htmlspecialchars($f['sucursal']) ?></td>
+                                                    <td><?= fnum($f['ordenes']) ?></td>
+                                                    <td class="pct-muted"><?= fp($f['pct_mes']) ?></td>
+                                                    <td><?= fm($f['importe']) ?></td>
+                                                    <td><?= fnum($f['aged_count']) ?></td>
+                                                    <td class="pct-muted"><?= fp($f['aged_pct']) ?></td>
+                                                    <td><?= fm($f['aged_importe']) ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="fila-total">
+                                                <td>Total</td>
+                                                <td><?= fnum($tot['ordenes'] ?? 0) ?></td>
+                                                <td class="pct-muted"><?= fp($tot['pct_mes'] ?? null) ?></td>
+                                                <td><?= fm($tot['importe'] ?? 0) ?></td>
+                                                <td><?= fnum($tot['aged_count'] ?? 0) ?></td>
+                                                <td class="pct-muted"><?= fp($tot['aged_pct'] ?? null) ?></td>
+                                                <td><?= fm($tot['aged_importe'] ?? 0) ?></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                    <?php if ($c['estimado']): ?>
+                                        <p class="padding-md pct-muted">* Importe estimado proporcionalmente (no es una suma exacta) — ver aviso de supuestos arriba.</p>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                        </div>
                         <?php endforeach; ?>
                     </div>
 
@@ -544,7 +551,7 @@ $mesActivo = $rep['mes'] ?? null;
     <?php }); ?>
     <script src="../assets/js/sidebar.js"></script>
     <script nonce="<?= cspStyleNonce() ?>">
-        (function () {
+        (function() {
             'use strict';
             var context = document.getElementById('rowContext');
             var form = document.getElementById('sidebarForm');
@@ -564,53 +571,165 @@ $mesActivo = $rep['mes'] ?? null;
             var MODELO_OBJ = 'ObjetivoServicio';
 
             var camposModelos = {
-                'recibidas_total': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Recibidas' },
-                'recibidas_interna': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Recibidas' },
-                'recibidas_publico': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Recibidas' },
-                'recibidas_garantia': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Recibidas' },
-                'facturadas_total': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Facturadas' },
-                'facturadas_interna': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Facturadas' },
-                'facturadas_publico': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Facturadas' },
-                'facturadas_garantia': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Facturadas' },
-                'facturadas_obj_dia': { modelo: MODELO_OBJ, atributo: 'Obj_Ordenes_Reparacion_al_Dia' },
-                'facturadas_obj_mes': { modelo: MODELO_OBJ, atributo: 'Obj_Ordenes_Reparacion' },
-                'en_proceso_ordenes': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_en_Proceso' },
-                'en_proceso_importe': { modelo: MODELO_VSR, atributo: 'Venta_en_Proceso' },
-                'en_proceso_aged_count': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_en_Proceso' },
-                'en_proceso_aged_importe': { modelo: MODELO_VSR, atributo: 'Venta_en_Proceso' },
-                'pendientes_facturar_ordenes': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Pendientes_Fact' },
-                'pendientes_facturar_importe': { modelo: MODELO_VSR, atributo: 'Venta_x_Facturar' },
-                'pendientes_facturar_aged_count': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Pendientes_Fact' },
-                'pendientes_facturar_aged_importe': { modelo: MODELO_VSR, atributo: 'Venta_x_Facturar' },
-                'abiertas_ordenes': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_en_Proceso + Cantidad_Ordenes_Reparacion_Pendientes_Fact' },
-                'abiertas_importe': { modelo: MODELO_VSR, atributo: 'Venta_en_Proceso + Venta_x_Facturar' },
-                'abiertas_aged_count': { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_en_Proceso + Cantidad_Ordenes_Reparacion_Pendientes_Fact' },
-                'abiertas_aged_importe': { modelo: MODELO_VSR, atributo: 'Venta_en_Proceso + Venta_x_Facturar' },
-                'servicio_venta': { modelo: MODELO_VSR, atributo: 'Venta' },
-                'servicio_margen': { modelo: MODELO_VSR, atributo: 'Venta - Costo_Neto' },
-                'refacciones_venta': { modelo: MODELO_VSR, atributo: 'Venta' },
-                'refacciones_margen': { modelo: MODELO_VSR, atributo: 'Venta - Costo_Neto' },
-                'venta': { modelo: MODELO_VSR, atributo: 'Venta' },
-                'obj_venta_dia': { modelo: MODELO_OBJ, atributo: 'Obj_Vta_al_Dia' },
-                'obj_venta_mes': { modelo: MODELO_OBJ, atributo: 'Obj_Vta_Mes' },
-                'margen': { modelo: MODELO_VSR, atributo: 'Venta - Costo_Neto' },
-                'obj_margen_dia': { modelo: MODELO_OBJ, atributo: 'Obj_Utilidad_al_Dia' },
-                'obj_margen_mes': { modelo: MODELO_OBJ, atributo: 'Obj_Utilidad_Mes' },
-                'cartera': { modelo: 'Cxc', atributo: 'Saldo' },
-                'ticket_prom_real': { modelo: MODELO_VSR, atributo: 'Venta / Cantidad_Ordenes_Reparacion_Recibidas' },
-                'ticket_prom_objetivo': { modelo: MODELO_OBJ, atributo: 'Ticket_Prom_Objetivo_Taller' }
+                'recibidas_total': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_Recibidas'
+                },
+                'recibidas_interna': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_Recibidas'
+                },
+                'recibidas_publico': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_Recibidas'
+                },
+                'recibidas_garantia': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_Recibidas'
+                },
+                'facturadas_total': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_Facturadas'
+                },
+                'facturadas_interna': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_Facturadas'
+                },
+                'facturadas_publico': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_Facturadas'
+                },
+                'facturadas_garantia': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_Facturadas'
+                },
+                'facturadas_obj_dia': {
+                    modelo: MODELO_OBJ,
+                    atributo: 'Obj_Ordenes_Reparacion_al_Dia'
+                },
+                'facturadas_obj_mes': {
+                    modelo: MODELO_OBJ,
+                    atributo: 'Obj_Ordenes_Reparacion'
+                },
+                'en_proceso_ordenes': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_en_Proceso'
+                },
+                'en_proceso_importe': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Venta_en_Proceso'
+                },
+                'en_proceso_aged_count': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_en_Proceso'
+                },
+                'en_proceso_aged_importe': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Venta_en_Proceso'
+                },
+                'pendientes_facturar_ordenes': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_Pendientes_Fact'
+                },
+                'pendientes_facturar_importe': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Venta_x_Facturar'
+                },
+                'pendientes_facturar_aged_count': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_Pendientes_Fact'
+                },
+                'pendientes_facturar_aged_importe': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Venta_x_Facturar'
+                },
+                'abiertas_ordenes': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_en_Proceso + Cantidad_Ordenes_Reparacion_Pendientes_Fact'
+                },
+                'abiertas_importe': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Venta_en_Proceso + Venta_x_Facturar'
+                },
+                'abiertas_aged_count': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Cantidad_Ordenes_Reparacion_en_Proceso + Cantidad_Ordenes_Reparacion_Pendientes_Fact'
+                },
+                'abiertas_aged_importe': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Venta_en_Proceso + Venta_x_Facturar'
+                },
+                'servicio_venta': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Venta'
+                },
+                'servicio_margen': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Venta - Costo_Neto'
+                },
+                'refacciones_venta': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Venta'
+                },
+                'refacciones_margen': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Venta - Costo_Neto'
+                },
+                'venta': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Venta'
+                },
+                'obj_venta_dia': {
+                    modelo: MODELO_OBJ,
+                    atributo: 'Obj_Vta_al_Dia'
+                },
+                'obj_venta_mes': {
+                    modelo: MODELO_OBJ,
+                    atributo: 'Obj_Vta_Mes'
+                },
+                'margen': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Venta - Costo_Neto'
+                },
+                'obj_margen_dia': {
+                    modelo: MODELO_OBJ,
+                    atributo: 'Obj_Utilidad_al_Dia'
+                },
+                'obj_margen_mes': {
+                    modelo: MODELO_OBJ,
+                    atributo: 'Obj_Utilidad_Mes'
+                },
+                'cartera': {
+                    modelo: 'Cxc',
+                    atributo: 'Saldo'
+                },
+                'ticket_prom_real': {
+                    modelo: MODELO_VSR,
+                    atributo: 'Venta / Cantidad_Ordenes_Reparacion_Recibidas'
+                },
+                'ticket_prom_objetivo': {
+                    modelo: MODELO_OBJ,
+                    atributo: 'Ticket_Prom_Objetivo_Taller'
+                }
             };
 
             var SIN_MODELO_PREFIJOS = ['_pct_mes', '_aged_pct', '_alcance_ritmo_pct', '_alcance_objetivo_pct'];
             var SIN_MODELO_EXACTOS = ['alcance_ritmo_pct', 'alcance_objetivo_pct', 'pct_margen',
-                'alcance_ritmo_margen_pct', 'alcance_objetivo_margen_pct', 'variacion'];
+                'alcance_ritmo_margen_pct', 'alcance_objetivo_margen_pct', 'variacion'
+            ];
 
             function buscarMeta(colId) {
                 if (colId.indexOf('recibidas_dia_') === 0) {
-                    return { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Recibidas' };
+                    return {
+                        modelo: MODELO_VSR,
+                        atributo: 'Cantidad_Ordenes_Reparacion_Recibidas'
+                    };
                 }
                 if (colId.indexOf('facturadas_dia_') === 0) {
-                    return { modelo: MODELO_VSR, atributo: 'Cantidad_Ordenes_Reparacion_Facturadas' };
+                    return {
+                        modelo: MODELO_VSR,
+                        atributo: 'Cantidad_Ordenes_Reparacion_Facturadas'
+                    };
                 }
                 return camposModelos[colId] || null;
             }
@@ -661,18 +780,18 @@ $mesActivo = $rep['mes'] ?? null;
                 var tarjetas = document.querySelectorAll('.tarjeta');
                 console.log('[SIDEBAR] Tarjetas encontradas:', tarjetas.length);
                 var totalHeaders = 0;
-                tarjetas.forEach(function (tarjeta) {
+                tarjetas.forEach(function(tarjeta) {
                     var tabla = tarjeta.querySelector('table');
                     if (!tabla) return;
                     var headers = tabla.querySelectorAll('thead th[data-col-id]');
                     if (headers.length === 0) return;
                     var titulo = tarjeta.querySelector('.titulo');
                     var nombreTarjeta = titulo ? titulo.textContent.trim() : '(sin título)';
-                    headers.forEach(function (th) {
+                    headers.forEach(function(th) {
                         if (th.hasAttribute('colspan') && parseInt(th.getAttribute('colspan'), 10) > 1) return;
                         th.style.cursor = 'pointer';
                         th.title = 'Click para ver detalle';
-                        th.addEventListener('click', function (e) {
+                        th.addEventListener('click', function(e) {
                             if (e.target.closest('a') || e.target.closest('button')) return;
                             console.log('[SIDEBAR] Click en encabezado:', JSON.stringify(th.textContent.trim()), 'de tabla "' + nombreTarjeta + '"');
                             llenarSidebar(th);
@@ -686,13 +805,17 @@ $mesActivo = $rep['mes'] ?? null;
             asignarClicksATablas();
 
             if (form) {
-                form.addEventListener('submit', function (e) {
+                form.addEventListener('submit', function(e) {
                     e.preventDefault();
                     if (!fTitulo || !fTitulo.value.trim()) return;
                     window.closeSidebar();
                 });
             }
         })();
+
+        document.getElementById('btn-experto')?.addEventListener('click', function() {
+            alert('Modo experto: próximamente disponible.');
+        });
     </script>
 </body>
 

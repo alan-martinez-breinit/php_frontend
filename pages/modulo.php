@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Visor genérico de módulos con whitelist de columnas.
  * Los módulos sin whitelist muestran solo conteo + aviso.
@@ -225,15 +226,17 @@ $columnasPermitidas = $MODULOS_COLUMNAS[$modulo] ?? [];
 // Sin whitelist → solo conteo
 if (empty($columnasPermitidas)) {
     $conteo = apiGet("/api/{$codigoCliente}/{$modulo}/count");
-    ?>
+?>
     <!DOCTYPE html>
     <html lang="es">
+
     <head>
         <meta charset="UTF-8">
         <title><?= htmlspecialchars($tituloModulo) ?> · Breinit DCA</title>
         <link rel="stylesheet" href="../assets/css/modulo.css">
         <link rel="stylesheet" href="../assets/css/topbar.css">
     </head>
+
     <body>
         <?php renderTopbar([
             'titulo'  => $tituloModulo,
@@ -252,8 +255,9 @@ if (empty($columnasPermitidas)) {
             <?php endif; ?>
         </main>
     </body>
+
     </html>
-    <?php
+<?php
     exit;
 }
 
@@ -306,7 +310,9 @@ $hayError = !empty($datos['error']);
     <link rel="stylesheet" href="../assets/css/tabla.css">
     <?php sidebarDetalleHeadLink(); ?>
     <style nonce="<?= cspStyleNonce() ?>">
-        main { padding: 24px 40px; }
+        main {
+            padding: 24px 40px;
+        }
     </style>
 </head>
 
@@ -349,7 +355,7 @@ $hayError = !empty($datos['error']);
             </div>
         <?php elseif (empty($items) || !is_array($items)): ?>
             <p class="empty-state">No hay registros para los filtros seleccionados.</p>
-        <?php else:
+            <?php else:
             // Columnas existentes en los datos
             $primerItem = is_array($items[0] ?? null) ? $items[0] : [];
             $columnasDisponibles = [];
@@ -367,27 +373,38 @@ $hayError = !empty($datos['error']);
                 // Tipo por nombre de campo
                 $tipoColumna = function ($campo) {
                     $cl = strtolower($campo);
-                    if (preg_match('/(precio|importe|venta|vta|costo|cargo|credito|saldo|ingreso|egreso|monto|utilidad)/i', $campo)
+                    if (
+                        preg_match('/(precio|importe|venta|vta|costo|cargo|credito|saldo|ingreso|egreso|monto|utilidad)/i', $campo)
                         && !preg_match('/^ud|^cantidad|^exist|unidades?$/i', $campo)
                         && !str_contains($cl, 'uds_')
                         && !str_contains($cl, 'pct')
-                        && !str_contains($cl, 'porc')) return 'moneda';
-                    if (preg_match('/(pct|porc|roi_real|margen_pct|alcance_pct)/i', $campo)
+                        && !str_contains($cl, 'porc')
+                    ) return 'moneda';
+                    if (
+                        preg_match('/(pct|porc|roi_real|margen_pct|alcance_pct)/i', $campo)
                         || preg_match('/^alcance_ritmo|^alcance_objetivo/', $campo)
-                        || preg_match('/(_pct$|_porcentaje$)/i', $campo)) return 'pct';
-                    if (preg_match('/^(unidades?|exist|stock|cantidad|uds_vendidas|uds_canceladas|venta_unidades|inventario|dias_|obj_uds|obj_vta_uds|obj_utilidad_bruta_pct)/i', $campo)
+                        || preg_match('/(_pct$|_porcentaje$)/i', $campo)
+                    ) return 'pct';
+                    if (
+                        preg_match('/^(unidades?|exist|stock|cantidad|uds_vendidas|uds_canceladas|venta_unidades|inventario|dias_|obj_uds|obj_vta_uds|obj_utilidad_bruta_pct)/i', $campo)
                         || preg_match('/^(unidades?|existencia|exist|stock|cantidad|inventario|dias_)/i', $campo)
-                        || preg_match('/^uds_/', $campo)) return 'numero';
+                        || preg_match('/^uds_/', $campo)
+                    ) return 'numero';
                     return 'texto';
                 };
                 $formatear = function ($raw, $tipo) {
                     if ($raw === null || $raw === '') return '—';
                     switch ($tipo) {
-                        case 'moneda': return '$' . number_format((float)$raw, 2);
-                        case 'pct':    return number_format((float)$raw, 1) . '%';
-                        case 'numero': return number_format((int)$raw, 0);
-                        case 'fecha':  return htmlspecialchars(implode('/', array_reverse(explode('-', (string)$raw))));
-                        default:       return htmlspecialchars((string)$raw);
+                        case 'moneda':
+                            return '$' . number_format((float)$raw, 2);
+                        case 'pct':
+                            return number_format((float)$raw, 1) . '%';
+                        case 'numero':
+                            return number_format((int)$raw, 0);
+                        case 'fecha':
+                            return htmlspecialchars(implode('/', array_reverse(explode('-', (string)$raw))));
+                        default:
+                            return htmlspecialchars((string)$raw);
                     }
                 };
 
@@ -434,75 +451,81 @@ $hayError = !empty($datos['error']);
                     'filas'    => $filasTabla,
                     'vacio'    => 'No hay registros para los filtros seleccionados.',
                 ]);
-                ?>
+            ?>
 
-            <?php if ($noAutoDemo): ?>
-            <?php
-                $qsBase = http_build_query([
-                    'modulo' => $modulo,
-                    'limit'  => $limit,
-                    'no_auto_demo' => 1,
-                ]);
-                $from = ($page - 1) * $limit + 1;
-                $to = min($page * $limit, $totalRegistros);
-            ?>
-            <div class="pagination">
-                <?php if ($page > 1): ?>
-                    <a href="?<?= htmlspecialchars($qsBase) ?>&page=1">&laquo; Primera</a>
-                    <a href="?<?= htmlspecialchars($qsBase) ?>&page=<?= $page - 1 ?>">&larr; Anterior</a>
+                <?php if ($noAutoDemo): ?>
+                    <?php
+                    $qsBase = http_build_query([
+                        'modulo' => $modulo,
+                        'limit'  => $limit,
+                        'no_auto_demo' => 1,
+                    ]);
+                    $from = ($page - 1) * $limit + 1;
+                    $to = min($page * $limit, $totalRegistros);
+                    ?>
+                    <div class="pagination">
+                        <?php if ($page > 1): ?>
+                            <a href="?<?= htmlspecialchars($qsBase) ?>&page=1">&laquo; Primera</a>
+                            <a href="?<?= htmlspecialchars($qsBase) ?>&page=<?= $page - 1 ?>">&larr; Anterior</a>
+                        <?php endif; ?>
+                        <span>Página <?= $page ?> de <?= max($totalPages, 1) ?> · Mostrando <?= number_format($from) ?>–<?= number_format($to) ?> de <?= number_format($totalRegistros) ?></span>
+                        <?php if ($page < $totalPages): ?>
+                            <a href="?<?= htmlspecialchars($qsBase) ?>&page=<?= $page + 1 ?>">Siguiente &rarr;</a>
+                            <a href="?<?= htmlspecialchars($qsBase) ?>&page=<?= $totalPages ?>">&Uacute;ltima &raquo;</a>
+                        <?php endif; ?>
+                    </div>
+                <?php else: ?>
+                    <?php
+                    $hasMore = $meta['has_more'] ?? ($offset + $limit < $totalRegistros);
+                    $nextOffset = $meta['next_offset'] ?? ($offset + $limit);
+                    $prevOffset = max(0, $offset - $limit);
+                    $qsBase = http_build_query([
+                        'modulo' => $modulo,
+                        'limit'  => $limit,
+                    ]);
+                    $mostradosHasta = $hasMore ? $offset + $limit : max($totalRegistros, $offset + $limit);
+                    ?>
+                    <div class="pagination">
+                        <?php if ($offset > 0): ?>
+                            <a href="?<?= htmlspecialchars($qsBase) ?>&offset=0">&laquo; Primera</a>
+                            <a href="?<?= htmlspecialchars($qsBase) ?>&offset=<?= $prevOffset ?>">&larr; Anterior</a>
+                        <?php endif; ?>
+                        <span>Mostrando <?= $offset + 1 ?>–<?= number_format($mostradosHasta) ?> de <?= number_format($totalRegistros) ?></span>
+                        <?php if ($hasMore): ?>
+                            <a href="?<?= htmlspecialchars($qsBase) ?>&offset=<?= $nextOffset ?>">Siguiente &rarr;</a>
+                        <?php endif; ?>
+                    </div>
                 <?php endif; ?>
-                <span>Página <?= $page ?> de <?= max($totalPages, 1) ?> · Mostrando <?= number_format($from) ?>–<?= number_format($to) ?> de <?= number_format($totalRegistros) ?></span>
-                <?php if ($page < $totalPages): ?>
-                    <a href="?<?= htmlspecialchars($qsBase) ?>&page=<?= $page + 1 ?>">Siguiente &rarr;</a>
-                    <a href="?<?= htmlspecialchars($qsBase) ?>&page=<?= $totalPages ?>">&Uacute;ltima &raquo;</a>
-                <?php endif; ?>
-            </div>
-            <?php else: ?>
-            <?php
-                $hasMore = $meta['has_more'] ?? ($offset + $limit < $totalRegistros);
-                $nextOffset = $meta['next_offset'] ?? ($offset + $limit);
-                $prevOffset = max(0, $offset - $limit);
-                $qsBase = http_build_query([
-                    'modulo' => $modulo,
-                    'limit'  => $limit,
-                ]);
-                $mostradosHasta = $hasMore ? $offset + $limit : max($totalRegistros, $offset + $limit);
-            ?>
-            <div class="pagination">
-                <?php if ($offset > 0): ?>
-                    <a href="?<?= htmlspecialchars($qsBase) ?>&offset=0">&laquo; Primera</a>
-                    <a href="?<?= htmlspecialchars($qsBase) ?>&offset=<?= $prevOffset ?>">&larr; Anterior</a>
-                <?php endif; ?>
-                <span>Mostrando <?= $offset + 1 ?>–<?= number_format($mostradosHasta) ?> de <?= number_format($totalRegistros) ?></span>
-                <?php if ($hasMore): ?>
-                    <a href="?<?= htmlspecialchars($qsBase) ?>&offset=<?= $nextOffset ?>">Siguiente &rarr;</a>
-                <?php endif; ?>
-            </div>
-            <?php endif; ?>
             <?php endif; ?>
         <?php endif; ?>
     </main>
 
     <script nonce="<?= cspStyleNonce() ?>">
-    document.getElementById('btnExportar')?.addEventListener('click', function() {
-        var win = window.open('', '_blank');
-        if (!win) { alert('Permite ventanas emergentes para exportar.'); return; }
-        var tables = document.querySelectorAll('table');
-        if (!tables.length) return;
-        var clone = tables[0].cloneNode(true);
-        clone.querySelectorAll('[style]').forEach(function(el) { el.removeAttribute('style'); });
-        win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Exportaci\u00F3n</title>' +
-            '<style>body{font-family:Inter,sans-serif;font-size:13px;padding:20px;color:#0b1c30;}' +
-            'table{width:100%;border-collapse:collapse;}' +
-            'th{background:#eff4ff;padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;border:1px solid #c5c5d4;}' +
-            'td{padding:8px 12px;border:1px solid #c5c5d4;}' +
-            '.num{text-align:right;}' +
-            '</style></head><body>');
-        win.document.write(clone.outerHTML);
-    win.document.write('</body></html>');
-    win.document.close();
-});
-</script>
-<?php renderSidebarDetalle($tituloModulo . ' — Detalle'); ?>
+        document.getElementById('btnExportar')?.addEventListener('click', function() {
+            var win = window.open('', '_blank');
+            if (!win) {
+                alert('Permite ventanas emergentes para exportar.');
+                return;
+            }
+            var tables = document.querySelectorAll('table');
+            if (!tables.length) return;
+            var clone = tables[0].cloneNode(true);
+            clone.querySelectorAll('[style]').forEach(function(el) {
+                el.removeAttribute('style');
+            });
+            win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Exportaci\u00F3n</title>' +
+                '<style>body{font-family:Inter,sans-serif;font-size:13px;padding:20px;color:#0b1c30;}' +
+                'table{width:100%;border-collapse:collapse;}' +
+                'th{background:#eff4ff;padding:8px 12px;text-align:left;font-size:11px;text-transform:uppercase;border:1px solid #c5c5d4;}' +
+                'td{padding:8px 12px;border:1px solid #c5c5d4;}' +
+                '.num{text-align:right;}' +
+                '</style></head><body>');
+            win.document.write(clone.outerHTML);
+            win.document.write('</body></html>');
+            win.document.close();
+        });
+    </script>
+    <?php renderSidebarDetalle($tituloModulo . ' — Detalle'); ?>
 </body>
+
 </html>

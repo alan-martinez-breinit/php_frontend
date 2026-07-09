@@ -113,6 +113,18 @@ $p3 = max(0, 100 - $p1 - $p2);
                 <span class="material-symbols-outlined nav-icon">insights</span>
                 <span>One Page</span>
             </a>
+            <a class="nav-link" href="one_page_taller.php">
+                <span class="material-symbols-outlined nav-icon">build</span>
+                <span>Taller</span>
+            </a>
+            <a class="nav-link" href="hp.php">
+                <span class="material-symbols-outlined nav-icon">brush</span>
+                <span>H&amp;P</span>
+            </a>
+            <a class="nav-link" href="refacciones.php">
+                <span class="material-symbols-outlined nav-icon">inventory_2</span>
+                <span>REFACCIONES</span>
+            </a>
             <?php foreach ($modulos as $m):
                 $url = moduloUrl($m['slug']);
             ?>
@@ -231,7 +243,7 @@ $p3 = max(0, 100 - $p1 - $p2);
         </div>
     </main>
     <script src="../assets/js/topbar.js"></script>
-<?php renderSidebarDetalle('Panel — Detalle'); ?>
+    <?php renderSidebarDetalle('Panel — Detalle'); ?>
 </body>
 
 </html>

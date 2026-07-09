@@ -475,6 +475,26 @@ td.cartera-filtrada {
   border-color: var(--primary);
 }
 
+.btn-experto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #001b5d;
+  color: #fff;
+  border: 1px solid #001b5d;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-experto:hover {
+  background: #092f87;
+  border-color: #092f87;
+}
+
 /* ---- Sección ---- */
 .seccion {
   margin-bottom: 32px;
