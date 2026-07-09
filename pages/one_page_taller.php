@@ -214,7 +214,7 @@ $mesActivo = $rep['mes'] ?? null;
                         <div class="titulo">Órdenes Recibidas (por día)</div>
                         <div class="fila-scroll">
                             <?php if (empty($dias)): ?>
-                                <p class="padding-md">Sin órdenes recibidas capturadas para este periodo (o el supuesto de Tipo_Venta_Serv_Most='Taller' no coincide — ver aviso arriba).</p>
+                                <p class="padding-md">Sin órdenes recibidas capturadas para este periodo (o el criterio de folio/día no coincide — ver aviso arriba).</p>
                             <?php else: ?>
                                 <table>
                                     <thead>
@@ -256,61 +256,50 @@ $mesActivo = $rep['mes'] ?? null;
                         </div>
                     </div>
 
-                    <?php // Venta Servicio y Refacciones
-                    $vsr = $rep['venta_servicio_refacciones'] ?? []; ?>
                     <div class="tarjeta">
                         <div class="titulo">Venta Servicio y Refacciones ($)</div>
                         <div class="fila-scroll">
-                            <?php if (empty($vsr['sucursales']) && empty($vsr)): ?>
+                            <?php if (empty($rep['sucursales'])): ?>
                                 <p class="padding-md">Sin datos de venta de servicio y refacciones para este periodo.</p>
                             <?php else: ?>
                                 <table>
                                     <thead>
                                         <tr>
-                                            <th data-col-id="sucursal">Sucursal</th>
-                                            <th data-col-id="servicio_venta">Servicio - Venta</th>
-                                            <th data-col-id="servicio_obj_dia">Servicio - Obj al Día</th>
-                                            <th data-col-id="servicio_alcance_ritmo">Servicio - %Alcance</th>
-                                            <th data-col-id="refacciones_venta">Refacciones - Venta</th>
-                                            <th data-col-id="refacciones_obj_dia">Refacciones - Obj al Día</th>
-                                            <th data-col-id="refacciones_alcance_ritmo">Refacciones - %Alcance</th>
-                                            <th data-col-id="total_venta">Total Venta</th>
-                                            <th data-col-id="total_obj_dia">Total Obj al Día</th>
-                                            <th data-col-id="total_alcance_ritmo">Total %Alcance</th>
+                                            <th>Sucursal</th>
+                                            <th>Servicio - Venta</th>
+                                            <th>Servicio - Margen</th>
+                                            <th>Servicio - % Part.</th>
+                                            <th>Refacciones - Venta</th>
+                                            <th>Refacciones - Margen</th>
+                                            <th>Refacciones - % Part.</th>
+                                            <th>Total Venta</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <?php foreach (($vsr['sucursales'] ?? []) as $f): ?>
+                                        <?php foreach (($rep['sucursales'] ?? []) as $f): ?>
                                             <tr>
                                                 <td><?= htmlspecialchars($f['sucursal'] ?? '') ?></td>
                                                 <td><?= fm($f['servicio_venta'] ?? 0) ?></td>
-                                                <td><?= fm($f['servicio_obj_dia'] ?? 0) ?></td>
-                                                <td><?= fpColor($f['servicio_alcance_ritmo_pct'] ?? null) ?></td>
+                                                <td><?= fm($f['servicio_margen'] ?? 0) ?></td>
+                                                <td class="pct-muted"><?= fp($f['servicio_pct'] ?? null) ?></td>
                                                 <td><?= fm($f['refacciones_venta'] ?? 0) ?></td>
-                                                <td><?= fm($f['refacciones_obj_dia'] ?? 0) ?></td>
-                                                <td><?= fpColor($f['refacciones_alcance_ritmo_pct'] ?? null) ?></td>
-                                                <td><strong><?= fm($f['total_venta'] ?? 0) ?></strong></td>
-                                                <td><?= fm($f['total_obj_dia'] ?? 0) ?></td>
-                                                <td><?= fpColor($f['total_alcance_ritmo_pct'] ?? null) ?></td>
+                                                <td><?= fm($f['refacciones_margen'] ?? 0) ?></td>
+                                                <td class="pct-muted"><?= fp($f['refacciones_pct'] ?? null) ?></td>
+                                                <td><strong><?= fm($f['venta'] ?? 0) ?></strong></td>
                                             </tr>
                                         <?php endforeach; ?>
-                                        <?php if (empty($vsr['sucursales'])): ?><tr>
-                                                <td colspan="10">Sin registros.</td>
-                                            </tr><?php endif; ?>
                                     </tbody>
                                     <tfoot>
-                                        <?php $t = $vsr['totales'] ?? []; ?>
+                                        <?php $t = $rep['totales'] ?? []; ?>
                                         <tr>
                                             <td>Total</td>
                                             <td><?= fm($t['servicio_venta'] ?? 0) ?></td>
-                                            <td><?= fm($t['servicio_obj_dia'] ?? 0) ?></td>
-                                            <td><?= fpColor($t['servicio_alcance_ritmo_pct'] ?? null) ?></td>
+                                            <td><?= fm($t['servicio_margen'] ?? 0) ?></td>
+                                            <td class="pct-muted"><?= fp($t['servicio_pct'] ?? null) ?></td>
                                             <td><?= fm($t['refacciones_venta'] ?? 0) ?></td>
-                                            <td><?= fm($t['refacciones_obj_dia'] ?? 0) ?></td>
-                                            <td><?= fpColor($t['refacciones_alcance_ritmo_pct'] ?? null) ?></td>
-                                            <td><?= fm($t['total_venta'] ?? 0) ?></td>
-                                            <td><?= fm($t['total_obj_dia'] ?? 0) ?></td>
-                                            <td><?= fpColor($t['total_alcance_ritmo_pct'] ?? null) ?></td>
+                                            <td><?= fm($t['refacciones_margen'] ?? 0) ?></td>
+                                            <td class="pct-muted"><?= fp($t['refacciones_pct'] ?? null) ?></td>
+                                            <td><strong><?= fm($t['venta'] ?? 0) ?></strong></td>
                                         </tr>
                                     </tfoot>
                                 </table>
