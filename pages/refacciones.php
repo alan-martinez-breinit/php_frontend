@@ -218,6 +218,15 @@ $todasCompanias = [];
         document.getElementById('btnExperto')?.addEventListener('click', function() {
             alert('Modo experto: próximamente disponible.');
         });
+
+        /* ---- Submit automático del selector de mes ---- */
+        var mesSelect = document.getElementById('mes');
+        if (mesSelect) {
+            mesSelect.addEventListener('change', function () {
+                var form = mesSelect.closest('form');
+                if (form) form.submit();
+            });
+        }
     </script>
 </body>
 
