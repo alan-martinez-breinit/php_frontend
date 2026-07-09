@@ -82,6 +82,10 @@ $inicio = microtime(true);
 $rep = apiGet($endpoint);
 $tiempoCarga = round(microtime(true) - $inicio, 2);
 
+function raw(mixed $v): string
+{
+    return htmlspecialchars((string)(float)($v ?? 0));
+}
 function fm(mixed $v): string
 {
     return '$' . number_format((float)$v, 0, '.', ',');
@@ -270,7 +274,7 @@ $mesActivo = $rep['mes'] ?? null;
                                     </thead>
                                     <tbody>
                                         <?php foreach (($od['sucursales'] ?? []) as $f): ?>
-                                            <tr>
+                                            <tr data-sucursal="<?= htmlspecialchars($f['sucursal']) ?>" data-compania="<?= htmlspecialchars($f['compania'] ?? '') ?>">
                                                 <td><?= htmlspecialchars($f['sucursal']) ?></td>
                                                 <?php foreach ($dias as $d): $v = $f['por_dia'][$d] ?? 0; ?>
                                                     <td><?= $v ? fnum($v) : '' ?></td>
@@ -338,16 +342,16 @@ $mesActivo = $rep['mes'] ?? null;
                                             <tr><td colspan="<?= $colspan ?>">Sin registros.</td></tr>
                                         <?php endif; ?>
                                         <?php foreach ($filas as $f): ?>
-                                            <tr>
+                                            <tr data-sucursal="<?= htmlspecialchars($f['sucursal']) ?>" data-compania="<?= htmlspecialchars($f['compania'] ?? '') ?>">
                                                 <td><?= htmlspecialchars($f['sucursal']) ?></td>
                                                 <td><?= fnum($f['ordenes']) ?></td>
                                                 <td class="pct-muted"><?= fp($f['pct_mes']) ?></td>
-                                                <td><?= fm($f['importe']) ?></td>
+                                                <td class="dinero" data-raw="<?= raw($f['importe']) ?>"><?= fm($f['importe']) ?></td>
                                                 <td><?= fnum($f['aged_count']) ?></td>
                                                 <?php if ($c['con_aged_pct']): ?>
                                                     <td class="pct-muted"><?= fp($f['aged_pct']) ?></td>
                                                 <?php endif; ?>
-                                                <td><?= fm($f['aged_importe']) ?></td>
+                                                <td class="dinero" data-raw="<?= raw($f['aged_importe']) ?>"><?= fm($f['aged_importe']) ?></td>
                                             </tr>
                                         <?php endforeach; ?>
                                     </tbody>
@@ -399,15 +403,15 @@ $mesActivo = $rep['mes'] ?? null;
                                     </thead>
                                     <tbody>
                                         <?php foreach (($of['sucursales'] ?? []) as $f): ?>
-                                            <tr>
+                                            <tr data-sucursal="<?= htmlspecialchars($f['sucursal']) ?>" data-compania="<?= htmlspecialchars($f['compania'] ?? '') ?>">
                                                 <td><?= htmlspecialchars($f['sucursal']) ?></td>
                                                 <?php foreach ($diasF as $d): $v = $f['por_dia'][$d] ?? 0; ?>
                                                     <td><?= $v ? fnum($v) : '' ?></td>
                                                 <?php endforeach; ?>
                                                 <td><strong><?= fnum($f['total']) ?></strong></td>
-                                                <td><?= fnum($f['obj_dia']) ?></td>
+                                                <td class="dinero" data-raw="<?= raw($f['obj_dia']) ?>"><?= fnum($f['obj_dia']) ?></td>
                                                 <td><?= fpColor($f['alcance_ritmo_pct']) ?></td>
-                                                <td><?= fnum($f['obj_mes']) ?></td>
+                                                <td class="dinero" data-raw="<?= raw($f['obj_mes']) ?>"><?= fnum($f['obj_mes']) ?></td>
                                                 <td><?= fpColor($f['alcance_objetivo_pct']) ?></td>
                                                 <td><?= fnum($f['aseguradoras']) ?></td>
                                                 <td><?= fnum($f['publico']) ?></td>
@@ -465,22 +469,22 @@ $mesActivo = $rep['mes'] ?? null;
                                 </thead>
                                 <tbody>
                                     <?php foreach (($rep['sucursales'] ?? []) as $f): ?>
-                                        <tr>
+                                        <tr data-sucursal="<?= htmlspecialchars($f['sucursal']) ?>" data-compania="<?= htmlspecialchars($f['compania'] ?? '') ?>">
                                             <td><?= htmlspecialchars($f['sucursal']) ?></td>
-                                            <td><?= fm($f['venta']) ?></td>
-                                            <td><?= fm($f['obj_venta_dia']) ?></td>
+                                            <td class="dinero" data-raw="<?= raw($f['venta']) ?>"><?= fm($f['venta']) ?></td>
+                                            <td class="dinero" data-raw="<?= raw($f['obj_venta_dia']) ?>"><?= fm($f['obj_venta_dia']) ?></td>
                                             <td><?= fpColor($f['alcance_ritmo_pct']) ?></td>
-                                            <td><?= fm($f['obj_venta_mes']) ?></td>
+                                            <td class="dinero" data-raw="<?= raw($f['obj_venta_mes']) ?>"><?= fm($f['obj_venta_mes']) ?></td>
                                             <td><?= fpColor($f['alcance_objetivo_pct']) ?></td>
-                                            <td class="<?= $f['margen'] < 0 ? 'neg' : '' ?>"><?= fm($f['margen']) ?></td>
+                                            <td class="dinero <?= $f['margen'] < 0 ? 'neg' : '' ?>" data-raw="<?= raw($f['margen']) ?>"><?= fm($f['margen']) ?></td>
                                             <td><?= fp($f['pct_margen']) ?></td>
-                                            <td><?= fm($f['obj_margen_dia']) ?></td>
+                                            <td class="dinero" data-raw="<?= raw($f['obj_margen_dia']) ?>"><?= fm($f['obj_margen_dia']) ?></td>
                                             <td><?= fpColor($f['alcance_ritmo_margen_pct']) ?></td>
-                                            <td><?= fm($f['obj_margen_mes']) ?></td>
+                                            <td class="dinero" data-raw="<?= raw($f['obj_margen_mes']) ?>"><?= fm($f['obj_margen_mes']) ?></td>
                                             <td><?= fpColor($f['alcance_objetivo_margen_pct']) ?></td>
-                                            <td><?= fm($f['cartera']) ?></td>
-                                            <td><?= $f['ticket_prom_real'] !== null ? fm($f['ticket_prom_real']) : '—' ?></td>
-                                            <td><?= $f['ticket_prom_objetivo'] !== null ? fm($f['ticket_prom_objetivo']) : '—' ?></td>
+                                            <td class="dinero" data-raw="<?= raw($f['cartera']) ?>"><?= fm($f['cartera']) ?></td>
+                                            <td class="dinero" data-raw="<?= raw($f['ticket_prom_real']) ?>"><?= $f['ticket_prom_real'] !== null ? fm($f['ticket_prom_real']) : '—' ?></td>
+                                            <td class="dinero" data-raw="<?= raw($f['ticket_prom_objetivo']) ?>"><?= $f['ticket_prom_objetivo'] !== null ? fm($f['ticket_prom_objetivo']) : '—' ?></td>
                                             <td class="<?= ($f['variacion'] ?? 0) < 0 ? 'neg' : '' ?>">
                                                 <?= $f['variacion'] !== null ? fm($f['variacion']) . ' (' . fp($f['variacion_pct']) . ')' : '—' ?>
                                             </td>
@@ -549,6 +553,41 @@ $mesActivo = $rep['mes'] ?? null;
                 var form = mesSelect.closest('form');
                 if (form) form.submit();
             });
+        }
+
+        /* ---- Filtro por compañía ---- */
+        function aplicarCompaniaHP() {
+            var sel = document.getElementById('compania');
+            if (!sel) return;
+            var val = sel.value;
+            document.querySelectorAll('table tbody tr[data-sucursal]').forEach(function (tr) {
+                var c = tr.getAttribute('data-compania') || '';
+                tr.style.display = (val === 'todas' || c === val) ? '' : 'none';
+            });
+        }
+        var companiaSelectHP = document.getElementById('compania');
+        if (companiaSelectHP) {
+            companiaSelectHP.addEventListener('change', aplicarCompaniaHP);
+        }
+
+        /* ---- Escala de moneda ---- */
+        function aplicarEscalaHP() {
+            var sel = document.getElementById('escala');
+            if (!sel) return;
+            var escala = parseFloat(sel.value) || 1;
+            var pref = escala === 100 ? 'C$' : escala === 1000 ? 'M$' : escala === 1000000 ? 'MM$' : '$';
+            document.querySelectorAll('td.dinero[data-raw]').forEach(function (td) {
+                var raw = parseFloat(td.getAttribute('data-raw')) || 0;
+                if (escala === 1) {
+                    td.textContent = '$' + raw.toLocaleString('es-MX', { maximumFractionDigits: 0 });
+                } else {
+                    td.textContent = pref + (raw / escala).toLocaleString('es-MX', { maximumFractionDigits: 1 });
+                }
+            });
+        }
+        var escalaSelectHP = document.getElementById('escala');
+        if (escalaSelectHP) {
+            escalaSelectHP.addEventListener('change', aplicarEscalaHP);
         }
     </script>
 

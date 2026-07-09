@@ -227,6 +227,41 @@ $todasCompanias = [];
                 if (form) form.submit();
             });
         }
+
+        /* ---- Filtro por compañía ---- */
+        function aplicarCompaniaRef() {
+            var sel = document.getElementById('compania');
+            if (!sel) return;
+            var val = sel.value;
+            document.querySelectorAll('table tbody tr[data-sucursal]').forEach(function (tr) {
+                var c = tr.getAttribute('data-compania') || '';
+                tr.style.display = (val === 'todas' || c === val) ? '' : 'none';
+            });
+        }
+        var companiaSelectRef = document.getElementById('compania');
+        if (companiaSelectRef) {
+            companiaSelectRef.addEventListener('change', aplicarCompaniaRef);
+        }
+
+        /* ---- Escala de moneda ---- */
+        function aplicarEscalaRef() {
+            var sel = document.getElementById('escala');
+            if (!sel) return;
+            var escala = parseFloat(sel.value) || 1;
+            var pref = escala === 100 ? 'C$' : escala === 1000 ? 'M$' : escala === 1000000 ? 'MM$' : '$';
+            document.querySelectorAll('td.dinero[data-raw]').forEach(function (td) {
+                var raw = parseFloat(td.getAttribute('data-raw')) || 0;
+                if (escala === 1) {
+                    td.textContent = '$' + raw.toLocaleString('es-MX', { maximumFractionDigits: 0 });
+                } else {
+                    td.textContent = pref + (raw / escala).toLocaleString('es-MX', { maximumFractionDigits: 1 });
+                }
+            });
+        }
+        var escalaSelectRef = document.getElementById('escala');
+        if (escalaSelectRef) {
+            escalaSelectRef.addEventListener('change', aplicarEscalaRef);
+        }
     </script>
 </body>
 
