@@ -1,0 +1,191 @@
+/* modulo.css — vista genérica de tabla */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: "Inter", "Segoe UI", sans-serif;
+  background: #f8f9ff;
+  color: #0b1c30;
+  padding: 0;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 40px;
+  background: #fff;
+  border-bottom: 1px solid #c5c5d4;
+}
+
+header a {
+  color: #001b5d;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+header h1 {
+  font-size: 24px;
+  color: #001b5d;
+  margin: 4px 0;
+}
+
+header p {
+  margin: 4px 0 0;
+  opacity: 0.7;
+  font-size: 13px;
+}
+
+main {
+  padding: 32px 40px;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.badge {
+  display: inline-block;
+  background: #e5eeff;
+  color: #001b5d;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+th, td {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+  border-bottom: 1px solid #eff4ff;
+}
+
+th {
+  background: #eff4ff;
+  color: #444652;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+
+tr:hover { background: #f8f9ff; }
+
+.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 16px 20px;
+  border-radius: 8px;
+}
+
+.error p {
+  margin-top: 8px;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+code {
+  background: #e5eeff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "Consolas", monospace;
+  font-size: 13px;
+}
+
+.header-logo {
+  height: 32px;
+  width: auto;
+  max-width: 110px;
+  object-fit: contain;
+}
+
+.aviso {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 16px 20px;
+  border-radius: 8px;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
+/* ===== Filtros, barra de búsqueda ===== */
+.filter-bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 20px; }
+.filter-bar label { font-size: 12px; font-weight: 600; color: #444652; display: block; margin-bottom: 4px; }
+.filter-bar input,
+.filter-bar select { padding: 8px 12px; border: 1px solid #c5c5d4; border-radius: 6px; font-size: 14px; font-family: inherit; background: #fff; }
+.filter-bar button { padding: 8px 20px; background: #001b5d; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; }
+.filter-bar button:hover { background: #092f87; }
+.search-wrap { position: relative; }
+.search-wrap .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #757683; font-size: 20px; pointer-events: none; }
+.search-wrap input { padding-left: 36px; min-width: 220px; }
+
+/* ===== Meta info ===== */
+.meta-info { font-size: 13px; color: #757683; margin-bottom: 12px; }
+
+/* ===== Números y montos ===== */
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+.monto-neg { color: #b91c1c; }
+
+/* ===== Paginación ===== */
+.pagination { margin-top: 20px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.pagination a { padding: 6px 14px; border: 1px solid #c5c5d4; border-radius: 6px; text-decoration: none; font-size: 14px; color: #001b5d; background: #fff; }
+.pagination a:hover { background: #eef1fb; }
+.pagination span { font-size: 14px; color: #444652; }
+
+/* ===== Exportar ===== */
+.barra-exportar { margin-bottom: 16px; display: flex; gap: 8px; }
+.btn-exportar { padding: 8px 16px; border: 1px solid #c5c5d4; border-radius: 6px; background: #fff; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; }
+.btn-exportar:hover { background: #eef1fb; }
+
+/* ===== Estado vacío ===== */
+.empty-state { padding: 40px 0; text-align: center; color: #757683; }
+
+/* ===== Contenedor tabla ===== */
+.tabla-wrap { overflow-x: auto; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+/* ===== Enlace limpiar filtros ===== */
+.filter-clean {
+  padding: 8px 16px; border: 1px solid #c5c5d4; border-radius: 6px;
+  text-decoration: none; font-size: 14px; color: #444652; display: inline-flex; align-items: center;
+}
+.filter-clean:hover { background: #f0f0f5; }
+
+/* ===== Icono en botón ===== */
+.icon-btn { font-size: 18px; vertical-align: middle; }
+
+/* ===== Meta info más espaciada ===== */
+.meta-info-lg { margin-bottom: 16px; }
+
+/* ===== Icono al lado de texto ===== */
+.icon-inline { font-size: 16px; vertical-align: middle; }
+
+/* ===== Toggle autos demo ===== */
+.toggle-demo { float: right; font-size: 12px; }
+.toggle-demo-link {
+  color: #0a7ad6;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 3px 10px;
+  border: 1px solid #0a7ad6;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+.toggle-demo-link:hover {
+  background: #0a7ad6;
+  color: #fff;
+}
+.toggle-demo-active {
+  color: #0a7a3d;
+  font-weight: 700;
+}

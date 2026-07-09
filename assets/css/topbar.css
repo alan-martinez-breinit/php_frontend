@@ -1,0 +1,290 @@
+/* ===== Componente Topbar Reutilizable ===== */
+
+/* ── Base ────────────────────────────────────── */
+.topbar-comp {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+  min-height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  font-family: "Inter", sans-serif;
+}
+
+.topbar-izq,
+.topbar-der {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ── Modo completo (one_page) ────────────────── */
+.topbar-completo {
+  background: #001b5d;
+  color: #fff;
+  border-bottom: 1px solid #001b5d;
+}
+.topbar-completo .topbar-titulo {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+  line-height: 1.2;
+}
+.topbar-completo .topbar-subtitulo {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  margin-top: 1px;
+}
+
+/* ── Modo sencillo (modulo, cxc) ─────────────── */
+.topbar-sencillo {
+  background: #001b5d;
+  color: #fff;
+  border-bottom: 1px solid #001b5d;
+}
+.topbar-sencillo .topbar-izq {
+  gap: 16px;
+}
+.topbar-sencillo .topbar-titulo {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0;
+}
+.topbar-sencillo .topbar-meta {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.72);
+  margin-top: 2px;
+}
+.topbar-sencillo .topbar-volver span:last-child {
+  display: none; /* solo ícono, sin texto "Inicio" */
+}
+
+/* ── Modo dashboard ──────────────────────────── */
+.topbar-dashboard {
+  background: #001b5d;
+  color: #fff;
+  border-bottom: 1px solid #001b5d;
+}
+
+/* ── Links de volver ─────────────────────────── */
+.topbar-volver {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: color 0.15s;
+}
+.topbar-volver:hover {
+  color: #fff;
+}
+.topbar-volver .material-symbols-outlined {
+  font-size: 20px;
+}
+
+/* ── Botón menú hamburger ────────────────────── */
+.topbar-btn-menu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  color: #fff;
+  transition: background 0.15s;
+}
+.topbar-btn-menu:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.topbar-btn-menu .material-symbols-outlined {
+  font-size: 24px;
+}
+
+/* ── Título wrap ─────────────────────────────── */
+.topbar-titulo-wrap {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* ── Busqueda (dashboard) ────────────────────── */
+.topbar-busqueda {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.topbar-busqueda-icono {
+  position: absolute;
+  left: 12px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 20px;
+  pointer-events: none;
+}
+.topbar-busqueda-input {
+  padding: 8px 16px 8px 40px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 24px;
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: #fff;
+  width: 320px;
+  outline: none;
+  transition: background 0.15s, border-color 0.2s;
+}
+.topbar-busqueda-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+.topbar-busqueda-input:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+.topbar-busqueda-input:focus {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* ── Logo ────────────────────────────────────── */
+.topbar-logo {
+  height: 36px;
+  width: auto;
+  max-width: 130px;
+  object-fit: contain;
+  background: #fff;
+  padding: 4px 10px;
+  border-radius: 8px;
+}
+
+/* ── Perfil ──────────────────────────────────── */
+.topbar-perfil {
+  position: relative;
+}
+.topbar-perfil-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  transition: background 0.15s;
+}
+.topbar-perfil-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+.topbar-perfil-nombre {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
+.topbar-perfil-avatar {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 50%;
+  color: #001b5d;
+  font-size: 18px;
+}
+
+/* ── Dropdown ─────────────────────────────────── */
+.topbar-perfil-dropdown {
+  display: none !important;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 230px;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  z-index: 200;
+}
+.topbar-perfil-dropdown.show {
+  display: block !important;
+}
+.topbar-perfil-cab {
+  padding: 14px 16px;
+  border-bottom: 1px solid #eee;
+  background: #f5f7ff;
+}
+.topbar-perfil-nom {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: #001b5d;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar-perfil-sub {
+  font-size: 13px;
+  color: #444652;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.topbar-perfil-logout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  text-decoration: none;
+  color: #b3261e;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.topbar-perfil-logout:hover {
+  background: #fde2e2;
+}
+.topbar-perfil-logout .material-symbols-outlined {
+  font-size: 20px;
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 768px) {
+  .topbar-comp {
+    padding: 0 16px;
+    min-height: 56px;
+    flex-wrap: wrap;
+  }
+  .topbar-busqueda-input {
+    width: 200px;
+  }
+  .topbar-perfil-nombre {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .topbar-completo .topbar-titulo {
+    font-size: 15px;
+  }
+  .topbar-completo .topbar-subtitulo {
+    font-size: 11px;
+  }
+  .topbar-logo {
+    display: none;
+  }
+}

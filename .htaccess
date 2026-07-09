@@ -1,0 +1,65 @@
+# Seguridad y configuración general
+
+# Ocultar información del servidor
+ServerSignature Off
+
+# Deshabilitar listado de directorios
+Options -Indexes
+
+# Proteger archivos sensibles
+<FilesMatch "^\.">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<FilesMatch "\.(env|ini|log|sh|sql|git|gitignore|gitattributes|md|yml|yaml|json|jsonc)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Proteger directorios sensibles
+RedirectMatch 403 ^/logs/?$
+RedirectMatch 403 ^/logs/.+$
+RedirectMatch 403 ^/includes/?$
+RedirectMatch 403 ^/lib/?$
+RedirectMatch 403 ^/data/?$
+RedirectMatch 403 ^/data/.+$
+
+# Deshabilitar ejecución de PHP en directorio de uploads/logos (solo servir estáticos)
+<IfModule mod_php.c>
+    php_flag display_errors off
+    php_flag expose_php off
+</IfModule>
+
+# Compresión
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css application/javascript application/json
+</IfModule>
+
+# Cache estática
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+</IfModule>
+
+# Bloquear métodos peligrosos y preparar rewrites
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK|OPTIONS)
+    RewriteRule .* - [F]
+</IfModule>

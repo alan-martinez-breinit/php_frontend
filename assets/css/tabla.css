@@ -1,0 +1,88 @@
+/* ===== Componente Tabla Reutilizable ===== */
+
+.tabla-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "Inter", system-ui, -apple-system, sans-serif;
+    font-size: 13px;
+    background: #fff;
+}
+
+/* Cabecera */
+.tabla thead th {
+    background: #f5f6fa;
+    color: #001b5d;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 2px solid #dde0ed;
+    white-space: nowrap;
+    user-select: none;
+}
+
+/* Celdas (sin text-align — que .num y clases específicas lo definan) */
+.tabla td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #eef1fb;
+    color: #0b1c30;
+    vertical-align: middle;
+}
+
+/* Números: derecha + mono */
+.tabla td.num,
+.tabla .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Negativo */
+.tabla .monto-neg {
+    color: #d32f2f;
+    font-weight: 600;
+}
+
+/* Sin datos */
+.tabla-vacio {
+    text-align: center;
+    padding: 32px 14px !important;
+    color: #9ea0b0;
+    font-style: italic;
+    font-size: 14px;
+}
+
+/* Hover en filas */
+.tabla tbody tr:hover {
+    background: #f8f9ff;
+}
+
+/* Click habilitado */
+.tabla tbody tr[style*="cursor:pointer"]:hover {
+    background: #eef1fb;
+}
+
+/* Fila de totales */
+tr.tabla-tfoot td {
+    font-weight: 700;
+    background: #f5f6fa;
+    border-top: 2px solid #001b5d;
+    color: #001b5d;
+}
+
+/* Responsive: en mobile apila cabecera y celda como bloque */
+@media (max-width: 640px) {
+    .tabla {
+        font-size: 12px;
+    }
+    .tabla thead th,
+    .tabla td {
+        padding: 8px 10px;
+    }
+}

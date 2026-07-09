@@ -1,0 +1,99 @@
+{
+  "meta": {
+    "date": "2026-07-07",
+    "project": "DCA Analytics - PHP Frontend",
+    "root": "C:\\xampp\\htdocs\\php_frontend"
+  },
+  "infrastructure": {
+    "csp_fix": {
+      "file": "includes/auth.php",
+      "change": "Added 'nonce-...' to script-src",
+      "before": "script-src 'self';",
+      "after": "script-src 'self' 'nonce-...';"
+    }
+  },
+  "components": {
+    "topbar": {
+      "php": "components/topbar.php",
+      "css": "assets/css/topbar.css",
+      "js": "assets/js/topbar.js",
+      "modes": ["completo", "sencillo", "dashboard"],
+      "applied_to": [
+        "one_page.php",
+        "one_page_taller.php",
+        "modulo.php",
+        "cxc.php"
+      ],
+      "pending": [
+        "objetivos_servicio.php (CSS+JS)",
+        "dashboard.php (more work)"
+      ]
+    },
+    "tabla": {
+      "php": "components/tabla.php",
+      "css": "assets/css/tabla.css",
+      "applied_to": [
+        "modulo.php",
+        "cxc.php",
+        "one_page.php (tablaVentaDinero)"
+      ],
+      "pending": ["one_page_taller.php"]
+    },
+    "sidebar": {
+      "php": "components/sidebar.php",
+      "css": "assets/css/sidebar.css",
+      "js": "assets/js/sidebar.js",
+      "api": {
+        "window.openSidebar": "opens panel",
+        "window.closeSidebar": "closes panel"
+      }
+    }
+  },
+  "one_page_sidebar_columns": {
+    "description": "Click on <th> opens sidebar with 4 fields: Modelo, Titulo, Formato, Formula",
+    "section_filter": "Both 'nuevos' and 'usados' enabled (body data-seccion)",
+    "columns_with_formulas": [
+      {
+        "label": "%Alcance Ritmo",
+        "id": "alc_ritmo",
+        "formula": "{(22) MARGEN BRUTO} / {(32) OBJETIVO AL DIA}"
+      },
+      {
+        "label": "%Alcance Objetivo",
+        "id": "alc_obj",
+        "formula": "{(2) VENTA} / {(20) OBJETIVO VENTAS}"
+      },
+      {
+        "label": "%Margen",
+        "id": "pct_margen",
+        "formula": "{(22) MARGEN BRUTO} / {(2) VENTA}"
+      },
+      {
+        "label": "%Alcance Objetivo",
+        "id": "alc_obj_margen",
+        "formula": "{(22) MARGEN BRUTO} / {(24) OBJETIVO MARGEN}"
+      },
+      {
+        "label": "MV",
+        "id": "mv",
+        "formula": "{(28) INVENTARIO} / {(34) Obj Vta Uds Mensual}"
+      }
+    ],
+    "inventario_pct_formula": "{(2|4|6|...) Label} / {(19) Label} (per range, position increments by 2)"
+  },
+  "section_titles": {
+    "nuevos": "Autos (tables say 'Autos')",
+    "usados": "SemiNuevos (tables say 'SemiNuevos')"
+  },
+  "pending_tasks": [
+    "Topbar CSS+JS en objetivos_servicio.php",
+    "Topbar dashboard.php (faltan ajustes)",
+    "Tabla en one_page_taller.php",
+    "Formulario sidebar para SemiNuevos (info pendiente del usuario)"
+  ],
+  "opencode_bun_conflict": {
+    "symptom": "'opencode' runs bun instead of OpenCode CLI",
+    "likely_cause": "Bun installed as Node replacement and intercepts 'opencode' → sends to bun's opencode subcommand instead of the actual OpenCode CLI.",
+    "try": "Use full path to OpenCode binary, or adjust PATH so OpenCode comes before Bun's bin directory."
+  }
+}
