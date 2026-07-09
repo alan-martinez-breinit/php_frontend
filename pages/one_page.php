@@ -1654,7 +1654,9 @@ $tituloSeccion = $seccionFiltro === 'nuevos' ? 'Autos Nuevos' : 'Autos Seminuevo
                 window.openSidebar();
             }
 
-            asignarClicksACeldas();
+            // SOLO headers son clickeables en TODAS las tablas.
+            // Las celdas de datos NO son interactivas.
+            // asignarClicksACeldas();
 
             if (form) {
                 form.addEventListener('submit', function(e) {
