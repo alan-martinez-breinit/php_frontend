@@ -1,0 +1,44 @@
+# Directorios de datos y logs
+/data/
+/logs/
+
+# Archivos de caché
+*.cache
+.DS_Store
+Thumbs.db
+
+# Archivos de configuración sensibles
+.env
+.env.local
+.env.*.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+
+# Sistema operativo
+.DS_Store
+Desktop.ini
+Thumbs.db
+
+# Archivos temporales
+*.tmp
+*.temp
+*.log
+
+# Node (si se usa en el futuro)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Composer (si se usa)
+vendor/
+composer.lock
+
+# Session snapshots y archivos de trabajo
+session-snapshot-*.json
